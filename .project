@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>recommender-system</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<variableList>
+		<variable>
+			<name>JRI_LD_PATH</name>
+			<value>$%7BR_HOME%7D/lib</value>
+		</variable>
+		<variable>
+			<name>R_HOME</name>
+			<value>file:/Library/Frameworks/R.framework/Resources</value>
+		</variable>
+		<variable>
+			<name>R_INCLUDE_DIR</name>
+			<value>file:/Library/Frameworks/R.framework/Resources/include</value>
+		</variable>
+		<variable>
+			<name>R_SHARE_DIR</name>
+			<value>file:/Library/Frameworks/R.framework/Resources/share</value>
+		</variable>
+	</variableList>
+</projectDescription>
