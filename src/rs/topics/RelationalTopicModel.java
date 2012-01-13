@@ -12,10 +12,9 @@ import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
 
 import rs.types.*;
-import rs.util.vlc.*;
-import rs.util.MTRandom;
 
 public class RelationalTopicModel implements java.io.Serializable {
+	private static final long serialVersionUID = 1L;
 	public final static String BY = "x"; 
 	public final static int LIST_SIZE = 30;
 	public final static int TIMES = 20;
