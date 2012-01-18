@@ -30,7 +30,7 @@ public class MalletTfidf implements Serializable {
 	public Task1Solution solver;
 		
 	public MalletTfidf(InstanceList doc) {
-		this.documents = doc;
+		this.documents = doc;		
 		initTfidf();
 	}
 	

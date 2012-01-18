@@ -21,8 +21,7 @@ public abstract class TopicIdfRecommender extends TopicRecommender {
 	}
 	
 	public void calculateTopicIdf() {
-		if(theta == null)
-			calculateProb();
+		if(theta == null) calculateProb();
 		int numOfDocs = tfidfRecommender.numOfDocs;
 		int[][] termIndex = tfidfRecommender.termIndex;
 		double[][] topicIdf = tfidfRecommender.tfidf.clone();

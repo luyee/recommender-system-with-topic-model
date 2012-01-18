@@ -84,7 +84,7 @@ public class LDAModel implements Serializable{
 			}
 		}
     
-    this.estimate(0, numDocs, numIterations, showTopicsInterval, outputModelInterval, outputModelFilename, r);
+		this.estimate(0, numDocs, numIterations, showTopicsInterval, outputModelInterval, outputModelFilename, r);
 		// 124.5 seconds
 		// 144.8 seconds after using FeatureSequence instead of tokens[][] array
 		// 121.6 seconds after putting "final" on FeatureSequence.getIndexAtPosition()
@@ -152,7 +152,12 @@ public class LDAModel implements Serializable{
 	{
 		long startTime = System.currentTimeMillis();
 		for (int iterations = 0; iterations < numIterations; iterations++) {
-			if (iterations % 10 == 0) System.out.print (iterations);	else System.out.print (".");
+			if (iterations % 10 == 0) 
+				System.out.print (iterations);
+			else if ((iterations > 0) && (iterations % 100 == 0)) 
+				System.out.println(); 
+			else 
+				System.out.print (".");
 			System.out.flush();
 			if (showTopicsInterval != 0 && iterations % showTopicsInterval == 0 && iterations > 0) {
 				System.out.println ();

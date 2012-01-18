@@ -51,12 +51,13 @@ public abstract class TopicRecommender {
 		FeatureSequence fs = (FeatureSequence) solver.documents.get(qdocId).getData();
 		for(int i=0; i<testSize; i++) {			
 			int testId = testIndexStart + i;
-			for(int t=0; t < Math.min(fs.getLength(), 6); t++) {
+			for(int t=0; t < fs.getLength(); t++) {
 				double termLikelihood = 0;
 				int term = fs.getIndexAtPosition(t);
 				for(int topic = 0; topic < theta[0].length; topic++) {
 					if(phi[term][topic] == 0) System.out.println(term + ", " + topic + " is 0");
 					if(theta[testId][topic] == 0) System.out.println(testId + ", " + topic + " is 0");
+					
 					termLikelihood += phi[term][topic]*theta[testId][topic];
 				}
 				predSim[i] *= termLikelihood;

@@ -12,6 +12,7 @@ import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
 
 import rs.types.*;
+import rs.util.vlc.Task1Solution;
 
 public class RelationalTopicModel implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
@@ -23,7 +24,7 @@ public class RelationalTopicModel implements java.io.Serializable {
 	public TObjectIntHashMap<String> idHash;
 	public TObjectIntHashMap<String> pairIdHash; 	// v1xv2 -> int
 	public ArrayList <String> pairIds;
-	
+
 	public ArrayList<PairedInfo> links;
 	public int numIterations;
 	public int numOfTopics;
@@ -50,9 +51,14 @@ public class RelationalTopicModel implements java.io.Serializable {
 	public double[][] f1;
 	public double[][] f2;
 	
+	/**
+	 * Relational factor of the power value.
+	 */
+	public double[][] rFactor;
+	
 	public double sigma;
 	
-	public static final int testIndexStart = 5236;
+	public static final int testIndexStart = Task1Solution.testIndexStart;
 	
 	public RelationalTopicModel(int numTopics) {
 		this(numTopics, 50.0, 0.01);
@@ -151,6 +157,43 @@ public class RelationalTopicModel implements java.io.Serializable {
 	}
 	
 	/**
+	 * Calculate the value of rFactor in sampling.
+	 * @param di
+	 * @param docLen
+	 */
+	private void _calculateRFactorForADoc(int di, int docLen) {
+		int ll = links.get(di).getLength();
+		Arrays.fill(rFactor[di], 1);
+		if (ll != 0) {
+			int[] pairedDocs = links.get(di).getPairedIdsArray();
+			double f3 = 0; //
+			for(int i=0; i<ll; i++) {
+				int dii = pairedDocs[i];
+				for(int k=0; k<numOfTopics; k++) {
+					f3 += eta[k] * zbar[di][k] * zbar[dii][k];
+				}
+			}
+			double f1 = 0, f2 = 0;
+			for(int k=0; k<numOfTopics; k++) {
+				for (int i=0; i<ll; i++) {
+					int dii = pairedDocs[i];
+					f1 += getPairedSim(di, dii) * zbar[dii][k];
+					f2 += (eta[k]*zbar[dii][k] / (double)docLen) * (eta[k]*zbar[dii][k] / (double)docLen + 2*f3);
+				}
+				f1 = f1 * 2 * eta[k]/(double)docLen;
+				rFactor[di][k] = Math.exp(f1-f2);
+			}
+		}
+	}
+	
+	private void _calculateRFactorForDocs() {
+		for(int i=0; i<documents.size(); i++) {
+			FeatureSequence fs = (FeatureSequence)documents.get(i).getData();
+			_calculateRFactorForADoc(i, fs.getLength());
+		}
+	}
+	
+	/**
 	 * Calculate values of x for regression. X is calculated based on zbar, and it must be 
 	 * in the same order as y array.
 	 * @param zbar
@@ -199,6 +242,7 @@ public class RelationalTopicModel implements java.io.Serializable {
 		
 		f1 = new double[numDoc][numOfTopics];
 		f2 = new double[numDoc][numOfTopics];
+		rFactor = new double[numDoc][numOfTopics];
 		
 		for(int di=0; di<numDoc; di++) {
 			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
@@ -218,24 +262,23 @@ public class RelationalTopicModel implements java.io.Serializable {
 		}
 		_calculateXValue();
 		params(y, x);
-		
-		for(int di=0; di<numDoc; di++) {
-			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
-			int docLen = fs.getLength();
-			_calculateF1F2ForADoc(di, docLen);
-		}
+		_calculateRFactorForDocs();
+//		for(int di=0; di<numDoc; di++) {
+//			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
+//			int docLen = fs.getLength();
+//			_calculateF1F2ForADoc(di, docLen);
+//		}
 
 		for(int iter=0; iter<numIterations; iter++) {
 			gibbsSampling(r);
 			_calculateXValue();
 			params(y, x);
+			_calculateRFactorForDocs();
 			if (iter > 0 ) {
-				if (iter%25 ==0) {
-					System.out.println("");
-				}
 				if (iter%50 == 0) {
-					printRegressionParameters();
-					printTopWords (5, false);
+					System.out.println();
+//					printRegressionParameters();
+//					printTopWords (5, false);
 				}
 			}
 			if (iter%10 == 0) {
@@ -302,9 +345,10 @@ public class RelationalTopicModel implements java.io.Serializable {
 				
 				for(int ti=0; ti<this.numOfTopics; ti++) {
 //					factor = _calculateLinkFactor(ti, di, si, docLen);
-					factor = _calculateLinkFactor2(ti, di, si, docLen);
+//					factor = _calculateLinkFactor2(ti, di, si, docLen);
+					factor = rFactor[di][ti];
 					tw = (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
-							/ (topicTokenCounts[ti] + tBeta) * Math.exp(factor); 
+							/ (topicTokenCounts[ti] + tBeta) * factor; //* Math.exp(factor); 
 					topicWeightsSum += tw;
 					topicWeights[ti] = tw;
 				}
@@ -489,10 +533,10 @@ public class RelationalTopicModel implements java.io.Serializable {
 
 	
 	public static void main(String[] args) throws IOException {
-		int numOfTopic = 5;
+		int numOfTopic = 10;
 		int numIter = 10;
 		String solutionFile = "dataset/task1_solution.txt";
-		String malletFile = "dataset/dataset/vlc_lectures.all.en.f8.mallet";
+		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
 		String queryFile = "dataset/task1_query.csv";
 		
 		if (args.length >= 2) {

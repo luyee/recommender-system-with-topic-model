@@ -2,14 +2,15 @@ package rs.util.vlc;
 
 import java.io.*;
 import java.text.*;
+import java.util.Arrays;
 
 import gnu.trove.map.hash.*;
 import gnu.trove.list.array.*;
 
 public class NormalizePairFeature {
 	TIntIntHashMap idHash; // idsHash[ids] = num, num will be the index in the matrix
-	final int FREQ_THRESH = 20;
-	final double RATE_THRESH = 0.001;
+	final int FREQ_THRESH = 0;
+	final double RATE_THRESH = 0.05;
 	int vSize;
 	
 //	int[][] pairs;
@@ -74,16 +75,20 @@ public class NormalizePairFeature {
 		BufferedReader reader = new BufferedReader(
 				new FileReader(pairFile));
 		String s;
+		Arrays.fill(totalFreq, 0);
 		
 		while( (s=reader.readLine()) != null) {
 			if (s.trim().startsWith("#")) continue;
 			String[] fields = s.split("\\s*,\\s*");
-			if (fields.length != 3) continue;
+			if (fields.length != 3) {
+				System.out.println("Fields length less than 3.");
+				continue;
+			}
 			int id1, id2, freq;
 			id1 = Integer.parseInt(fields[0]);
 			id2 = Integer.parseInt(fields[1]);
 			freq = Integer.parseInt(fields[2]);
-			if (freq < FREQ_THRESH) continue;
+//			if (freq < FREQ_THRESH) continue;
 			
 			int id1Idx = idHash.get(id1); 
 			int id2Idx = idHash.get(id2);
@@ -102,7 +107,9 @@ public class NormalizePairFeature {
 		BufferedReader reader = new BufferedReader(
 				new FileReader(pairFile));
 		String s;
+		int line = 0;
 		while( (s=reader.readLine()) != null) {
+			
 			if (s.trim().startsWith("#")) continue;
 			String[] fields = s.split(",");
 			if (fields.length != 3) continue;
@@ -113,12 +120,17 @@ public class NormalizePairFeature {
 			String key1 = fields[0].trim() + "," + fields[1].trim();
 			String key2 = fields[1].trim() + "," + fields[0].trim();
 			freq = Integer.parseInt(fields[2]);
-			if (freq < FREQ_THRESH) continue;
-			double sim = 2*freq/((double)totalFreq[idHash.get(id1)] + (double)totalFreq[idHash.get(id2)]);
+			double sim1 = (double)freq/(double)totalFreq[idHash.get(id1)];
+			double sim2 = (double)freq/(double)totalFreq[idHash.get(id2)];
+			
+			if ( freq < FREQ_THRESH || (sim1 < RATE_THRESH && sim2 < RATE_THRESH) ) continue;
+			double sim = freq/((double)totalFreq[idHash.get(id1)] + (double)totalFreq[idHash.get(id2)]);
 			features.put(key1, sim);
 			features.put(key2, sim);
+			line++;
 		}
 		reader.close();
+		System.out.println("Totla lines: " + line);
 //		for(int i=0; i<vSize; i++) {
 //			for(int j=0; j<i; j++) {
 //				if (pairs[i][j] > FREQ_THRESH) {
@@ -164,6 +176,6 @@ public class NormalizePairFeature {
 		String pairFile = "dataset/pairs.csv";
 		f.readPairsData("dataset/lecture_ids.csv", "dataset/pairs.csv");
 		f.normalizeFeature(pairFile);
-		f.outputFeature("dataset/sim.csv");
+		f.outputFeature("dataset/vlc/sim5p.csv");
 	}
 }

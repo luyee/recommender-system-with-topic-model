@@ -2,7 +2,7 @@
  * need to import it into mallet as instances. 
  * We'll use CvsIterator with each line an instance in the file. 
  */
-package rs.util.vlc;
+package rs.util;
 
 import java.util.ArrayList;
 import java.util.regex.*;
@@ -31,17 +31,22 @@ public class LectureMalletImporter {
 		pipeList.add( new CharSequence2TokenSequence(Pattern.compile("\\p{L}[\\p{L}\\p{P}]+\\p{L}")) );
 		pipeList.add( new TokenSequenceRemoveStopwords(new File("stoplists/en.txt.cp"), "UTF-8", false, false, false) );
 		pipeList.add( new TokenSequence2FeatureSequence() );
-//		pipeList.add( new PrintInputAndTarget() );
 		return new SerialPipes(pipeList);
 	}
 	
-	public InstanceList readCsvFile (String dataFile) throws IOException {
+	public InstanceList readCsvFile (String dataFile, CsvIterator... ci) throws IOException {
 		InstanceList instances = new InstanceList(pipe);
 		Reader fileReader = new InputStreamReader(new FileInputStream(new File(dataFile)), "UTF-8");
-	    instances.addThruPipe( new CsvIterator(fileReader, 
-	                               "(\\w+)\\s+(\\w+)\\s+(.*)",
-	                               3, 2, 1)  // (data, target, id) field indices
-	                         );
+		CsvIterator iterator;
+		if(ci.length > 0) {
+			iterator = ci[0];
+		} else {
+			iterator = new CsvIterator(fileReader, 
+                    "(\\w+)\\s+(\\w+)\\s+(.*)",
+                    3, 2, 1);
+		}
+
+	    instances.addThruPipe( iterator ); // (data, target, id) field indices
 		return instances;
 	}
 	

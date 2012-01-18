@@ -8,6 +8,7 @@ import rs.util.vlc.Task1Solution;
 
 import cc.mallet.topics.*;
 import cc.mallet.types.FeatureSequence;
+import cc.mallet.types.InstanceList;
 import cc.mallet.types.LabelSequence;
 import cc.mallet.util.Randoms;
 
@@ -40,32 +41,37 @@ public class LDARecommender extends TopicRecommender{
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-//		ParallelTopicModel ptm = new ParallelTopicModel(100, 50, 0.01);
-		String objectFile = "dataset/rtm.100.3000.dat";
-		String solutionFile = "dataset/task1_solution.en.f8.50.3000.lm.txt";
-		String queryFile = "dataset/task1_query.en.f8.txt";
-		ObjectInputStream input = new ObjectInputStream(new FileInputStream(objectFile));
-		RelationalTopicModel rtm = (RelationalTopicModel) input.readObject();
+		int numOfTopics = 20;
+		LDAModel lda = new LDAModel(numOfTopics);
 		
-//		ptm.addInstances(rtm.documents);
-//		ptm.setNumIterations(3000);
-//		ptm.setSaveSerializedModel(1000, "dataset/lda.model.dat");
-//		ptm.setTopicDisplay(100, 5);
-//		ptm.estimate();
-
-//		LDAModel lda = new LDAModel(50, 5, 0.01);
-//		lda.estimate(rtm.documents, 3001, 200, 1000, "dataset/lda.model.dat", new Randoms());
-//		lda.readObject(new ObjectInputStream(new FileInputStream(ldaFile)));
-
-		String ldaFile = "dataset/lda.model.dat.3000";
-		input = new ObjectInputStream(new FileInputStream(ldaFile));
-		LDAModel lda = (LDAModel) input.readObject();
+		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+		String simFile = "dataset/vlc/sim5p.csv";
+		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
+		String queryFile = "dataset/task1_query.en.f8.txt";
+		String targetFile = "dataset/task1_target.en.f8.txt";
+		
+		int numOfTopic = 20;
+		int numIter = 1000;
+		
+		InstanceList documents = InstanceList.load(new File(malletFile));
+		lda.estimate(documents, numIter, 0, 0, null, new Randoms());
 		
 		LDARecommender tester;
 		
 		tester = new LDARecommender(lda);
 		tester.calculateProb();
-		tester.recommendSolution(queryFile, solutionFile);
+		
+		tester.retrieveTask1Solution(queryFile, solutionFile);
+		double precision;
+		try {
+			precision = Task1Solution.evaluateResult(targetFile, solutionFile);	
+			System.out.println(String.format(
+					"LDARecommender: iteration: %d, precisoion: %f", 
+					 numIter, precision));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
 

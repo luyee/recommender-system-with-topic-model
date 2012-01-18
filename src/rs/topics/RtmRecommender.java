@@ -1,6 +1,7 @@
 package rs.topics;
 
 import cc.mallet.types.*;
+import cc.mallet.util.Randoms;
 import rs.topics.*;
 import rs.util.vlc.Task1Solution;
 
@@ -17,6 +18,10 @@ public class RtmRecommender extends TopicRecommender {
 		this.rtm = m;
 	}
 	
+	public RelationalTopicModel getRtm() {
+		return rtm;
+	}
+
 	/**
 	 * Given a query id, return a list of 30 videos from test videos.
 	 * @param qId
@@ -63,14 +68,23 @@ public class RtmRecommender extends TopicRecommender {
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		String objectFile = "dataset/rtm.100.3000.dat";
-		String solutionFile = "dataset/task1_solution.en.f8.100.3000.lm.txt";
+//		String objectFile = "dataset/rtm.100.3000.dat";
+		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+		String simFile = "dataset/vlc/sim5p.csv";
+		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
-		ObjectInputStream input = new ObjectInputStream(new FileInputStream(objectFile));
-		RelationalTopicModel rtm = (RelationalTopicModel) input.readObject();
+		int numOfTopic = 20;
+		int numIter = 1000;
+		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic);
+		rtm.initFromFile(malletFile, simFile);
+	
+		Randoms r = new Randoms();
+		rtm.estimate(numIter, r);
+		rtm.printTopWords (10, true);		
 		RtmRecommender tester = new RtmRecommender(rtm);
+		tester.calculateProb();
 		
 		tester.recommendSolution(queryFile, solutionFile);
 		try {
@@ -80,6 +94,4 @@ public class RtmRecommender extends TopicRecommender {
 			e.printStackTrace();
 		}
 	}
-	
-	
 }

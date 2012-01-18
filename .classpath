@@ -19,5 +19,6 @@
 	<classpathentry kind="lib" path="lib/commons-math-2.2.jar" sourcepath="/Users/Haibin/Documents/workspace/Java/recommender-system/lib/commons-math-2.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/vlc.jar"/>
 	<classpathentry kind="lib" path="lib/core.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.7-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

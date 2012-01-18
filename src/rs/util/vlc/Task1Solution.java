@@ -10,17 +10,14 @@ import org.tunedit.core.ResourceLoader;
 import org.tunedit.core.ResourceName;
 import org.tunedit.core.exception.TunedTesterException;
 
-import rs.topics.RelationalTopicModel;
-import task1.ClassificationEvalSimple;
-
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 
 public abstract class Task1Solution {
-	
+
 	public final static int LIST_SIZE = 30;
 	public InstanceList documents;
-	public static final int testIndexStart = RelationalTopicModel.testIndexStart;
+	public static final int testIndexStart = 5236;
 
 	public TObjectIntHashMap<String> idHash;
 	
@@ -122,7 +119,7 @@ public abstract class Task1Solution {
 	}
 	
 	public static double evaluateResult(String targetFile, String solutionFile) throws Exception {
-		ClassificationEvalSimple a = new ClassificationEvalSimple();		
+		Task1Evaluation a = new Task1Evaluation(LIST_SIZE);		
 		ResourceName userLabelsName = new ResourceName(solutionFile);
 		
 		//put here the path to the file "task1_target_test_leaderboard.txt"

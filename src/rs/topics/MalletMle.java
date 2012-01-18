@@ -13,7 +13,7 @@ import rs.util.vlc.Task1Solution;
 
 import cc.mallet.types.*;
 
-public class MalletMle extends MalletTfidf {
+public class MalletMle extends MalletTfidf {	
 	public int[] collTf; 	// term frequency in the whole collection, indexed by term.
 	public double[] collTw;	// term weight in the whole collection, indexed by term
 	public double[][] termProb; // term weight in each doc, indexed by <document, term>
@@ -80,7 +80,7 @@ public class MalletMle extends MalletTfidf {
 				double[] predSim = new double[test_size];
 				Arrays.fill(predSim, 0);
 				for(int i=0; i<test_size; i++) {
-					predSim[i] = getMleSim2(qdocId, testIndexStart+i);
+					predSim[i] = getMleSim(qdocId, testIndexStart+i);
 //					predSim[i] = getTwidfSim(qdocId, testIndexStart+i);
 				}
 				String line = sortRecommendList(qdocId, predSim);
@@ -192,12 +192,12 @@ public class MalletMle extends MalletTfidf {
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		String solutionFile = "dataset/task1_solution.en.f8.tfidf.txt";
 		InstanceList documents = InstanceList.load(new File(malletFile));
-		double lambda=0.001;
+		double lambda=0.01;
 		double miu = 100;
 		MalletMle mt = new MalletMle(documents);
 		
-		while(miu < 10000){
-//		while(lambda < 1) {
+//		while(miu < 10000){
+		while(lambda < 1) {
 			mt.setLambda(lambda);
 			mt.setMiu(miu);
 			mt.retrieveTask1Solution(queryFile, solutionFile);
@@ -209,7 +209,7 @@ public class MalletMle extends MalletTfidf {
 				e.printStackTrace();
 			}
 			miu *= 1.5;
-			lambda *= 1.5;
+			lambda *= 1.1;
 		}
 	}
 }

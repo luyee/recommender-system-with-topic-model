@@ -5,10 +5,10 @@ import cc.mallet.topics.*;
 import cc.mallet.types.*;
 import java.io.*;
 
-public class LDAExplorer extends TopicIdfRecommender {
+public class LDAIdfExplorer extends TopicIdfRecommender {
 	ParallelTopicModel lda;
 	
-	LDAExplorer(InstanceList documents) {
+	LDAIdfExplorer(InstanceList documents) {
 		super(documents);
 	}
 	
@@ -55,7 +55,7 @@ public class LDAExplorer extends TopicIdfRecommender {
 	
 	public static void testParameter(InstanceList documents, String queryFile, String solutionFile,
 			int numTopics, int numIterations, double alpha, double beta) throws IOException {
-		LDAExplorer explorer = new LDAExplorer(documents);
+		LDAIdfExplorer explorer = new LDAIdfExplorer(documents);
 		
 		double alphaSum = alpha * numTopics;
 		ParallelTopicModel lda = new ParallelTopicModel(numTopics, alphaSum, beta);
@@ -100,7 +100,7 @@ public class LDAExplorer extends TopicIdfRecommender {
 					beta *= 2;
 //					String solutionFile = String.format(
 //							"dataset/task1_solution.en.f8.%f.%f.%d.%d.txt", alpha, beta, topic, numIterations);
-					LDAExplorer.testParameter(documents, queryFile, solutionFile, topic, numIterations, alpha, beta);
+					LDAIdfExplorer.testParameter(documents, queryFile, solutionFile, topic, numIterations, alpha, beta);
 					try {
 						double precision = Task1Solution.evaluateResult(targetFile, solutionFile);
 						System.out.println(String.format(
