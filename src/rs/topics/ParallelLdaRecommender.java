@@ -65,10 +65,10 @@ public class ParallelLdaRecommender extends TopicRecommender{
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
-		int numTopics = 20;
-		int numIterations = 500;
-		double alpha = 0.01;
-		double beta = 0.01;
+		int numTopics = 160;
+		int numIterations = 2000;
+		double alpha = 0.0016;
+		double beta = 0.0001;
 		
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		ParallelTopicModel lda = new ParallelTopicModel(numTopics, alpha*numTopics, beta);
@@ -78,8 +78,6 @@ public class ParallelLdaRecommender extends TopicRecommender{
 		lda.setSymmetricAlpha(false);
 		lda.estimate();
 		lda.printTopWords(System.out, 10, true);
-		
-		
 		
 		ParallelLdaRecommender tester = new ParallelLdaRecommender(documents);
 		tester.setPtm(lda);
@@ -91,7 +89,7 @@ public class ParallelLdaRecommender extends TopicRecommender{
 		try {
 			precision = Task1Solution.evaluateResult(targetFile, solutionFile);	
 			System.out.println(String.format(
-					"LDARecommender: iteration: %d, precisoion: %f", 
+					"ParallelLdaRecommender: iteration: %d, precisoion: %f", 
 					numIterations, precision));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

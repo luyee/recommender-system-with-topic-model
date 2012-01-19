@@ -42,17 +42,17 @@ public class LDARecommender extends TopicRecommender{
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		int numOfTopics = 20;
-		LDAModel lda = new LDAModel(numOfTopics);
+		int numIter = 500;
+		double alpha = 0.0016;
+		double beta = 0.0048;
+		LDAModel lda = new LDAModel(numOfTopics, alpha*numOfTopics, beta);
 		
 		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
 		String simFile = "dataset/vlc/sim5p.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
-		
-		int numOfTopic = 20;
-		int numIter = 1000;
-		
+
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		lda.estimate(documents, numIter, 0, 0, null, new Randoms());
 		

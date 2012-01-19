@@ -62,6 +62,7 @@ public class LectureMalletImporter {
 		instances.save(new File(malletOutput));
 		
 		InstanceList instances2 = InstanceList.load(new File(malletOutput));
+		
 		System.out.println(instances2.get(5235).getName());
 		System.out.println(instances2.get(5236).getName());
 //		saveCorpus(instances2);

@@ -152,10 +152,10 @@ public class LDAModel implements Serializable{
 	{
 		long startTime = System.currentTimeMillis();
 		for (int iterations = 0; iterations < numIterations; iterations++) {
-			if (iterations % 10 == 0) 
-				System.out.print (iterations);
-			else if ((iterations > 0) && (iterations % 100 == 0)) 
+			if ((iterations > 0) && (iterations % 100 == 0)) 
 				System.out.println(); 
+			else if (iterations % 10 == 0) 
+				System.out.print (iterations);
 			else 
 				System.out.print (".");
 			System.out.flush();

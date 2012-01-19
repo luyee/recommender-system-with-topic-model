@@ -41,4 +41,19 @@ public class Util {
 		}
 		return Math.sqrt(sum);
 	}
+	
+	/**
+	 * eta's length should be one longer than v1 and v2.
+	 * @param v1
+	 * @param v2
+	 * @param eta
+	 * @return
+	 */
+	public static double weightedProduct(double[] v1, double[] v2, double[] eta) {
+		double result = eta[0];
+		for(int i=0; i<v1.length; i++) {
+			result += v1[i] * v2[i] * eta[i+1];
+		}
+		return result;
+	}
 }

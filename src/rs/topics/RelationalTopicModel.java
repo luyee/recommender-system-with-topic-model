@@ -210,7 +210,7 @@ public class RelationalTopicModel implements java.io.Serializable {
 			int v2 = Integer.parseInt(ids[1]);
 			int docIdx = iterator.value();
 			for(int i=0; i<x[docIdx].length; i++) {
-				x[docIdx][i] = zbar[v1][i] * zbar[v2][i]*TIMES;
+				x[docIdx][i] = zbar[v1][i] * zbar[v2][i];
 			}
 		}
 	}
@@ -262,18 +262,18 @@ public class RelationalTopicModel implements java.io.Serializable {
 		}
 		_calculateXValue();
 		params(y, x);
-		_calculateRFactorForDocs();
-//		for(int di=0; di<numDoc; di++) {
-//			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
-//			int docLen = fs.getLength();
-//			_calculateF1F2ForADoc(di, docLen);
-//		}
+//		_calculateRFactorForDocs();
+		for(int di=0; di<numDoc; di++) {
+			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
+			int docLen = fs.getLength();
+			_calculateF1F2ForADoc(di, docLen);
+		}
 
 		for(int iter=0; iter<numIterations; iter++) {
 			gibbsSampling(r);
 			_calculateXValue();
 			params(y, x);
-			_calculateRFactorForDocs();
+//			_calculateRFactorForDocs();
 			if (iter > 0 ) {
 				if (iter%50 == 0) {
 					System.out.println();
@@ -338,17 +338,17 @@ public class RelationalTopicModel implements java.io.Serializable {
 				oldTopic = topics[di][si];
 				docTopicCounts[di][oldTopic]--;
 				termTopicCounts[term][oldTopic]--;
-				topicTokenCounts[oldTopic]--;
+				topicTokenCounts[oldTopic]--;	
 				Arrays.fill(topicWeights, 0);
 				topicWeightsSum = 0;
 				zbar[di][oldTopic] = docTopicCounts[di][oldTopic]/docLen;	
 				
 				for(int ti=0; ti<this.numOfTopics; ti++) {
 //					factor = _calculateLinkFactor(ti, di, si, docLen);
-//					factor = _calculateLinkFactor2(ti, di, si, docLen);
-					factor = rFactor[di][ti];
+					factor = _calculateLinkFactor2(ti, di, si, docLen);
+//					factor = rFactor[di][ti];
 					tw = (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
-							/ (topicTokenCounts[ti] + tBeta) * factor; //* Math.exp(factor); 
+							/ (topicTokenCounts[ti] + tBeta) * Math.exp(factor); //* factor;  
 					topicWeightsSum += tw;
 					topicWeights[ti] = tw;
 				}
@@ -409,6 +409,7 @@ public class RelationalTopicModel implements java.io.Serializable {
 	 */
 	public void params(double[] y, double[][] x) {
 		OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
+		regression.setNoIntercept(true);
 		
 //		int end = 6011;
 //		double[] newY = Arrays.copyOf(y, end);
@@ -533,11 +534,15 @@ public class RelationalTopicModel implements java.io.Serializable {
 
 	
 	public static void main(String[] args) throws IOException {
-		int numOfTopic = 10;
-		int numIter = 10;
+		int numOfTopic = 40;
+		int numIter = 500;
+		double alpha = 0.0016;
+		double beta = 0.0048;
+		
 		String solutionFile = "dataset/task1_solution.txt";
 		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
 		String queryFile = "dataset/task1_query.csv";
+		String simFile = "dataset/sim.csv";
 		
 		if (args.length >= 2) {
 			numOfTopic = Integer.parseInt(args[0]);
@@ -551,8 +556,8 @@ public class RelationalTopicModel implements java.io.Serializable {
 		System.out.println("Number of topics: " + numOfTopic + ", number of iteration: " + numIter);
 		/* test */
 		long start = System.currentTimeMillis();
-		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic);
-		rtm.initFromFile(malletFile, "dataset/sim.csv");
+		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic, alpha*numOfTopic, beta);
+		rtm.initFromFile(malletFile, simFile);
 	
 		Randoms r = new Randoms();
 		rtm.estimate(numIter, r);
@@ -579,15 +584,15 @@ public class RelationalTopicModel implements java.io.Serializable {
 //		}
 //		writer.flush();
 //		writer.close();
-		StringBuffer sb = new StringBuffer();
-		sb.append("rtm.");
-		sb.append(numOfTopic);
-		sb.append(".");
-		sb.append(numIter);
-		sb.append(".dat");
-		ObjectOutputStream obj_out = new ObjectOutputStream(new FileOutputStream(sb.toString()));
-		obj_out.writeObject(rtm);
-		obj_out.flush();
-		obj_out.close();
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("rtm.");
+//		sb.append(numOfTopic);
+//		sb.append(".");
+//		sb.append(numIter);
+//		sb.append(".dat");
+//		ObjectOutputStream obj_out = new ObjectOutputStream(new FileOutputStream(sb.toString()));
+//		obj_out.writeObject(rtm);
+//		obj_out.flush();
+//		obj_out.close();
 	}
 }

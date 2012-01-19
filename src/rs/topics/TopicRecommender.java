@@ -29,8 +29,9 @@ public abstract class TopicRecommender {
 				int qdocId = idHash.get(qId);
 				
 				int test_size = documents.size() - testIndexStart;
-				double[] predSim = queryLikelihoodModel(qdocId, testIndexStart, test_size);
+//				double[] predSim = queryLikelihoodModel(qdocId, testIndexStart, test_size);
 //				double[] predSim = queryLikelihoodModel2(qdocId, testIndexStart, test_size);
+				double[] predSim = queryTopicVSM(qdocId, testIndexStart, test_size);
 						
 				String line = sortRecommendList(qdocId, predSim);
 				return line;

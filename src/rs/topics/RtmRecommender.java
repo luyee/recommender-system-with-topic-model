@@ -35,9 +35,8 @@ public class RtmRecommender extends TopicRecommender {
 		Arrays.fill(predSim, rtm.eta[0]);
 		
 		for(int i=0; i<test_size; i++) {
-			
 			for(int t=0; t<rtm.numOfTopics; t++) {
-				predSim[i] += rtm.zbar[solver.testIndexStart+i][t] * rtm.zbar[qdocId][t] * rtm.eta[t+1];
+				predSim[i] += rtm.zbar[solver.testIndexStart+i][t] * rtm.zbar[qdocId][t] * rtm.eta[t];
 			}
 			
 		}
@@ -75,9 +74,11 @@ public class RtmRecommender extends TopicRecommender {
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
-		int numOfTopic = 20;
+		int numOfTopic = 80;
 		int numIter = 1000;
-		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic);
+		double alpha = 0.0016;
+		double beta = 0.0048;
+		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic, alpha*numOfTopic, beta);
 		rtm.initFromFile(malletFile, simFile);
 	
 		Randoms r = new Randoms();
