@@ -15,7 +15,7 @@ import cc.mallet.types.InstanceList;
 
 public abstract class Task1Solution {
 
-	public final static int LIST_SIZE = 30;
+	public final static int LIST_SIZE = 100;
 	public InstanceList documents;
 	public static final int testIndexStart = 5236;
 
@@ -82,6 +82,17 @@ public abstract class Task1Solution {
 		}
 		Arrays.sort(videos);
 		StringBuilder line = new StringBuilder();
+		
+//		for(int i=0; i<LIST_SIZE; i++) {
+//			line.append(testVideoId);
+//			line.append(" ");
+//			line.append(videos[i].id);
+//			line.append(" ");
+//			line.append(videos[i].sim);
+//			line.append("\n");
+//		}
+//		return line.toString();
+		
 		line.append(testVideoId);
 		line.append(":");
 		for(int i=0; i<LIST_SIZE-1; i++) {
@@ -93,6 +104,7 @@ public abstract class Task1Solution {
 	}
 	
 	public abstract String recommend(String qid);
+
 	
 	public ArrayList<String> query(String queryFile) throws IOException {
 		ArrayList<String>lines = new ArrayList<String>();
