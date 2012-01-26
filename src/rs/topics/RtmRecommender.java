@@ -2,23 +2,23 @@ package rs.topics;
 
 import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
-import rs.topics.*;
 import rs.util.vlc.Task1Solution;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RtmRecommender extends TopicRecommender {
 
-	RelationalTopicModel rtm;
+//	RelationalTopicModel rtm;
+//	RTM rtm;
+	PrimeRtm rtm;
 	
-	public RtmRecommender(RelationalTopicModel m) {
+	public RtmRecommender(PrimeRtm m) {
 		super(m.documents);
 		this.rtm = m;
 	}
 	
-	public RelationalTopicModel getRtm() {
+	public PrimeRtm getRtm() {
 		return rtm;
 	}
 
@@ -62,7 +62,7 @@ public class RtmRecommender extends TopicRecommender {
 			}
 	}
 	
-	public void setRtm(RelationalTopicModel r) {
+	public void setRtm(PrimeRtm r) {
 		this.rtm = r;
 	}
 	
@@ -75,12 +75,12 @@ public class RtmRecommender extends TopicRecommender {
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
 		int numOfTopic = 80;
-		int numIter = 1000;
+		int numIter = 50;
 		double alpha = 0.0016;
 		double beta = 0.0048;
-		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic, alpha*numOfTopic, beta);
+		PrimeRtm rtm = new PrimeRtm(numOfTopic, alpha*numOfTopic, beta);
 		rtm.initFromFile(malletFile, simFile);
-	
+
 		Randoms r = new Randoms();
 		rtm.estimate(numIter, r);
 		rtm.printTopWords (10, true);		

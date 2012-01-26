@@ -253,7 +253,6 @@ public class RelationalTopicModel implements java.io.Serializable {
 				topics[di][si] = topic;
 				docTopicCounts[di][topic]++;
 				topicTokenCounts[topic]++;
-				int temp = fs.getIndexAtPosition(si);
 				termTopicCounts[fs.getIndexAtPosition(si)][topic]++;
 			}
 			for(int ti=0; ti<numOfTopics; ti++) {

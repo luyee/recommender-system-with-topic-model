@@ -1,3 +1,9 @@
+/**
+ * This is the implementation of basic rtm as described in Chang's paper.
+ * Notice I'm using the same implementation in R implementation of R package.
+ * @author Haibin
+ * 01-25-2012
+ */
 package rs.topics;
 
 import java.io.*;
@@ -6,7 +12,6 @@ import java.util.*;
 import gnu.trove.iterator.*;
 import gnu.trove.list.array.*;
 import gnu.trove.map.hash.*;
-import org.apache.commons.math.stat.regression.*;
 
 import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
@@ -14,7 +19,7 @@ import cc.mallet.util.Randoms;
 import rs.types.*;
 import rs.util.vlc.Task1Solution;
 
-public class RTM implements java.io.Serializable {
+public class PrimeRtm implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static String BY = "x"; 
 	public final static int LIST_SIZE = 30;
@@ -42,29 +47,18 @@ public class RTM implements java.io.Serializable {
 	public int[] topicTokenCounts;		// indexed by topic, meaning how many tokens in each topic
 	
 	public double[][] zbar;			// indexed by doc, topic, average doc distribution of documents
-	public double[] y;					// value of normalized pair feature
 	public double[][] x;				// value for regression
 	public double[] eta;
 	
-	/* f1, f2, and f3 are three factors in calculation of relational topic model.
-	 * Indexed by doc, topic */
-	public double[][] f1;
-	public double[][] f2;
-	
-	/**
-	 * Relational factor of the power value.
-	 */
-	public double[][] rFactor;
-	
-	public double sigma;
-	
+	public double lambda;			// regularization parameter
+
 	public static final int testIndexStart = Task1Solution.testIndexStart;
 	
-	public RTM(int numTopics) {
+	public PrimeRtm(int numTopics) {
 		this(numTopics, 50.0, 0.01);
 	}
 	
-	public RTM(int numTopics, double alphaSum, double beta) {
+	public PrimeRtm(int numTopics, double alphaSum, double beta) {
 		this.numOfTopics = numTopics;
 		this.alpha = alphaSum/numOfTopics;
 		this.beta = beta;
@@ -78,43 +72,7 @@ public class RTM implements java.io.Serializable {
 		p.add(doc2, sim);
 	}
 	
-	/**
-	 * Calculate the value of rFactor in sampling.
-	 * @param di
-	 * @param docLen
-	 */
-	private void _calculateRFactorForADoc(int di, int docLen) {
-		int ll = links.get(di).getLength();
-		Arrays.fill(rFactor[di], 1);
-		if (ll != 0) {
-			int[] pairedDocs = links.get(di).getPairedIdsArray();
-			double f3 = 0; //
-			for(int i=0; i<ll; i++) {
-				int dii = pairedDocs[i];
-				for(int k=0; k<numOfTopics; k++) {
-					f3 += eta[k] * zbar[di][k] * zbar[dii][k];
-				}
-			}
-			double f1 = 0, f2 = 0;
-			for(int k=0; k<numOfTopics; k++) {
-				for (int i=0; i<ll; i++) {
-					int dii = pairedDocs[i];
-					f1 += getPairedSim(di, dii) * zbar[dii][k];
-					f2 += (eta[k]*zbar[dii][k] / (double)docLen) * (eta[k]*zbar[dii][k] / (double)docLen + 2*f3);
-				}
-				f1 = f1 * 2 * eta[k]/(double)docLen;
-				rFactor[di][k] = Math.exp(f1-f2);
-			}
-		}
-	}
-	
-	private void _calculateRFactorForDocs() {
-		for(int i=0; i<documents.size(); i++) {
-			FeatureSequence fs = (FeatureSequence)documents.get(i).getData();
-			_calculateRFactorForADoc(i, fs.getLength());
-		}
-	}
-	
+
 	/**
 	 * Calculate values of x for regression. X is calculated based on zbar, and it must be 
 	 * in the same order as y array.
@@ -161,7 +119,6 @@ public class RTM implements java.io.Serializable {
 		termTopicCounts = new int[numTerms][numOfTopics];
 		topicTokenCounts = new int[numOfTopics];
 		eta = new double[numOfTopics]; 	// the first value is intercept
-		rFactor = new double[numDoc][numOfTopics];
 		
 		for(int di=0; di<numDoc; di++) {
 			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
@@ -176,13 +133,11 @@ public class RTM implements java.io.Serializable {
 			}
 			_calculateZbar(di, docLen);
 		}
-		_calculateXValue();
-		params(y, x);
+		params();
 
 		for(int iter=0; iter<numIterations; iter++) {
 			gibbsSampling(r, sampleIter);
-			_calculateXValue();
-			params(y, x);
+			params();
 			if (iter > 0 ) {
 				if (iter%50 == 0) {
 					System.out.println();
@@ -200,16 +155,28 @@ public class RTM implements java.io.Serializable {
 
 	private void _calculateZbar(int di, int docLen) {
 		for(int ti=0; ti<numOfTopics; ti++) {
-			zbar[di][ti] = ((double)docTopicCounts[di][ti]+alpha) / ((double)docLen + alpha);
+			zbar[di][ti] = (docTopicCounts[di][ti]+alpha) / ((double)docLen + alpha);
 		}
 	}
 	
-	public void printRegressionParameters() {
-		System.out.println("Coefficients: ");
-		for(int i=0; i<this.eta.length; i++) {
-			System.out.println(i + ": " + this.eta[i]);
+	
+	private void _calculateLinkProbs(int di, double[] link_probs) {
+		// TODO Auto-generated method stub
+		int ll = links.get(di).getLength();
+		Arrays.fill(link_probs, 1);
+		FeatureSequence fs = (FeatureSequence)documents.get(di).getData();
+		int docLen = fs.getLength();
+		if (ll != 0) {
+			int[] pairedDocs = links.get(di).getPairedIdsArray();
+			for(int li=0; li<pairedDocs.length; li++) {
+				fs = (FeatureSequence)documents.get(pairedDocs[li]).getData();
+				int ddLen = fs.getLength();
+				for(int k=0; k<numOfTopics; k++) {
+					link_probs[k] *= Math.exp(eta[k] * docTopicCounts[pairedDocs[li]][k] / (double)docLen / (double)ddLen);
+				}
+			}
 		}
-		System.out.println("sigma: " + this.sigma);
+		
 	}
 	
 	public InstanceList getDocuments() {
@@ -243,12 +210,16 @@ public class RTM implements java.io.Serializable {
 		double tw;
 		double topicWeightsSum;
 		int docLen;
+		double[] link_probs = new double[numOfTopics];
+		
 		for(int ii=0; ii<sampleIter; ii++) {
 			for(int di=0; di<documents.size(); di++) {
 				FeatureSequence fs = (FeatureSequence)documents.get(di).getData();
 				docLen = fs.getLength();
+				
 				/* Calculate link probability for this document */
-				_calculateRFactorForADoc(di, docLen);
+				_calculateLinkProbs(di, link_probs);
+				
 				for (int si=0; si<docLen; si++) {
 					term = fs.getIndexAtPosition(si);
 					oldTopic = topics[di][si];
@@ -260,7 +231,7 @@ public class RTM implements java.io.Serializable {
 					
 					for(int ti=0; ti<this.numOfTopics; ti++) {
 						tw = (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
-								/ (topicTokenCounts[ti] + tBeta) * rFactor[di][ti];
+								/ (topicTokenCounts[ti] + tBeta) * link_probs[ti];
 						topicWeightsSum += tw;
 						topicWeights[ti] = tw;
 					}
@@ -276,7 +247,8 @@ public class RTM implements java.io.Serializable {
 		}
 	}
 	
-	
+
+
 	public void initFromFile(String trainMalletFile, String linkFile) throws IOException {
 		documents = InstanceList.load(new File(trainMalletFile));
 //		documents = new LectureMalletImporter().readCsvFile("dataset/vlc_train.complete.txt");
@@ -316,36 +288,21 @@ public class RTM implements java.io.Serializable {
 	}
 	
 	/**
-	 * Carry out linear regression based on y and x value
-	 * @param y
-	 * @param x
-	 * @param eta Eta values will be set using this array.
-	 * @return Variance value sigma
+	 * Calculate the eta value.
 	 */
-	public void params(double[] y, double[][] x) {
-		OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
-		regression.setNoIntercept(true);
-		
-//		int end = 6011;
-//		double[] newY = Arrays.copyOf(y, end);
-//		double[][] newX = new double[end][];
-//		for(int i=0; i<newX.length; i++) {
-//			newX[i] = Arrays.copyOf(x[i], x[i].length);
-//		}
-//		System.out.println(pairIds.get(end-1));
-//		String[] vids = pairIds.get(end-1).split(BY);
-//		
-//		System.out.println(documents.get(Integer.parseInt(vids[0])).getName());
-//		System.out.println(documents.get(Integer.parseInt(vids[1])).getName());
-//		Instance inst1 = documents.get(Integer.parseInt(vids[0]));
-//		Instance inst2 = documents.get(Integer.parseInt(vids[1]));
-//		double[] zbarInst1 = zbar[Integer.parseInt(vids[0])];
-//		double[] zbarInst2 = zbar[Integer.parseInt(vids[1])];
-//		regression.newSampleData(newY, newX);
-		
-		regression.newSampleData(y, x);
-		this.eta = regression.estimateRegressionParameters();
-		this.sigma = regression.estimateErrorVariance();
+	public void params() {
+		_calculateXValue();
+		double[] p = new double[this.numOfTopics];
+		Arrays.fill(p, 0);
+		for(int i=0; i<x.length; i++) {
+			for(int t=0; t<numOfTopics; t++) {
+				p[t] += x[i][t];
+			}
+		}
+		for(int t=0; t<numOfTopics; t++) {
+			double temp = p[t] / (p[t] + lambda * alpha * alpha * documents.size() * (documents.size() -1) /2);
+			eta[t] = Math.log(temp/(1-temp));
+		}
 	}
 	
 
@@ -397,7 +354,6 @@ public class RTM implements java.io.Serializable {
 		}
 		pairIdHash = new TObjectIntHashMap<String>();
 		pairIds = new ArrayList<String>();
-		TDoubleArrayList simArray = new TDoubleArrayList();
 		
 		BufferedReader reader = new BufferedReader(
 				new FileReader(linkFile));
@@ -421,7 +377,6 @@ public class RTM implements java.io.Serializable {
 			
 			if( !this.containsPair(doc1, doc2)) {
 				pairIdHash.put(pairIdString(doc1, doc2), numOfLinks);
-				simArray.add(sim);
 				pairIds.add(pairIdString(doc1, doc2));
 				numOfLinks++;
 			} else {
@@ -432,7 +387,8 @@ public class RTM implements java.io.Serializable {
 			this.addPair(doc2, doc1, sim);
 		}
 		reader.close();
-		y = simArray.toArray();
+		/* Initialize lambda */
+		lambda = (double)numOfLinks /(double) (documents.size() * (documents.size() -1)/2);
 	}
 	
 	/**
@@ -446,7 +402,6 @@ public class RTM implements java.io.Serializable {
 			documents.add(iterator.next());
 		}
 	}
-
 	
 	public static void main(String[] args) throws IOException {
 		int numOfTopic = 40;
@@ -460,55 +415,6 @@ public class RTM implements java.io.Serializable {
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
-		if (args.length >= 2) {
-			numOfTopic = Integer.parseInt(args[0]);
-			numIter = Integer.parseInt(args[1]);
-		}
-		if (args.length >= 5) {
-			malletFile = args[2];
-			solutionFile = args[3];
-			queryFile = args[4];
-		}
-		System.out.println("Number of topics: " + numOfTopic + ", number of iteration: " + numIter);
-		/* test */
-		long start = System.currentTimeMillis();
-		RTM rtm = new RTM(numOfTopic, alpha*numOfTopic, beta);
-		rtm.initFromFile(malletFile, simFile);
-	
-		Randoms r = new Randoms();
-		rtm.estimate(numIter, r);
-		System.out.println("document size:" + rtm.documents.size());
-		System.out.println("Link document length: " + rtm.links.size());
-		System.out.println("link size:" + rtm.numOfLinks);
-		System.out.println("Pair size: " + rtm.pairIdHash.size());
-		
-		int ps = 0;
-		Iterator<PairedInfo> iterator = rtm.links.iterator();
-		while(iterator.hasNext()) {
-			PairedInfo pi = iterator.next();
-			ps += pi.getLength();
-		}
-		System.out.println("Size of paired links: " + ps);
-
-		System.out.println("Time cost: " + (System.currentTimeMillis() - start));
-		rtm.printTopWords (10, true);
-//		ArrayList<String> solution = rtm.query(queryFile);
-//		BufferedWriter writer = new BufferedWriter(new FileWriter(solutionFile));
-//		for(int i=0; i<solution.size(); i++) {
-//			writer.write(solution.get(i));
-//			writer.newLine();
-//		}
-//		writer.flush();
-//		writer.close();
-//		StringBuffer sb = new StringBuffer();
-//		sb.append("rtm.");
-//		sb.append(numOfTopic);
-//		sb.append(".");
-//		sb.append(numIter);
-//		sb.append(".dat");
-//		ObjectOutputStream obj_out = new ObjectOutputStream(new FileOutputStream(sb.toString()));
-//		obj_out.writeObject(rtm);
-//		obj_out.flush();
-//		obj_out.close();
 	}
 }
+
