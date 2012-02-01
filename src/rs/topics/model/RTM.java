@@ -1,3 +1,7 @@
+/**
+ * In order to improve its efficiency, we calculate the link factor for a document only 
+ * once in this model.
+ */
 package rs.topics.model;
 
 import java.io.*;

@@ -1,3 +1,8 @@
+/**
+ * This model calculates link factor for every time when it samples over a term.
+ * Different from the model RTM, which only calculates the factor once for 
+ * a document.
+ */
 package rs.topics.model;
 
 import java.io.*;
