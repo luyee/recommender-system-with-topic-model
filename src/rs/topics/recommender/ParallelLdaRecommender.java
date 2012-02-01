@@ -1,4 +1,4 @@
-package rs.topics;
+package rs.topics.recommender;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +60,7 @@ public class ParallelLdaRecommender extends TopicRecommender{
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String simFile = "dataset/vlc/sim5p.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
 		String queryFile = "dataset/task1_query.en.f8.txt";

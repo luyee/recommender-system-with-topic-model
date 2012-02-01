@@ -1,9 +1,10 @@
-package rs.topics;
+package rs.topics.recommender;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import rs.topics.model.LDAModel;
 import rs.util.vlc.Task1Solution;
 
 import cc.mallet.topics.*;
@@ -15,9 +16,9 @@ import cc.mallet.util.Randoms;
 public class LDARecommender extends TopicRecommender{
 
 	LDAModel lda;
-	
 	LDARecommender(LDAModel p) {
 		super(p.getInstanceList());
+		
 		this.lda = p;
 	}
 
@@ -41,13 +42,14 @@ public class LDARecommender extends TopicRecommender{
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		int numOfTopics = 20;
-		int numIter = 500;
+		int numOfTopics = 160;
+		int numIter = 1000;
 		double alpha = 0.0016;
 		double beta = 0.0048;
 		LDAModel lda = new LDAModel(numOfTopics, alpha*numOfTopics, beta);
 		
-		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String simFile = "dataset/vlc/sim5p.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
 		String queryFile = "dataset/task1_query.en.f8.txt";

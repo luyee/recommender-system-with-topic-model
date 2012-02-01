@@ -3,12 +3,8 @@ package rs.sandbox.topics;
 import java.io.*;
 import java.util.*;
 
-import cc.mallet.pipe.*;
 import cc.mallet.types.*;
-import cc.mallet.pipe.iterator.*;
 import cc.mallet.topics.*;
-
-import rs.util.vlc.*;
 
 public class VlcTopicModel {
 	public static void main(String[] args) throws IOException {

@@ -1,4 +1,4 @@
-package rs.topics;
+package rs.topics.recommender;
 
 import java.io.IOException;
 import java.util.Arrays;

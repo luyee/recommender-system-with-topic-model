@@ -10,7 +10,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 import org.apache.commons.math.stat.regression.OLSMultipleLinearRegression;
 
-import rs.topics.RelationalTopicModel;
+import rs.topics.model.RelationalTopicModel;
 import rs.types.PairedInfo;
 import rs.util.vlc.Task1Solution;
 import cc.mallet.types.*;

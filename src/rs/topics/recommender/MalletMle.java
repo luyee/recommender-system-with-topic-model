@@ -3,7 +3,7 @@
  * More specifically, P_(mle)(t|M_d) = \frac{tf_{t,d}}/L_d
  * P
  */
-package rs.topics;
+package rs.topics.recommender;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,7 +1,8 @@
-package rs.topics;
+package rs.topics.recommender;
 
 import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
+import rs.topics.model.PrimeRtm;
 import rs.util.vlc.Task1Solution;
 
 import java.io.*;
@@ -69,6 +70,7 @@ public class RtmRecommender extends TopicRecommender {
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 //		String objectFile = "dataset/rtm.100.3000.dat";
 		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String simFile = "dataset/vlc/sim5p.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
 		String queryFile = "dataset/task1_query.en.f8.txt";

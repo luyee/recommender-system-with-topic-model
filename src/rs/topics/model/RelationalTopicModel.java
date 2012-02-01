@@ -1,4 +1,4 @@
-package rs.topics;
+package rs.topics.model;
 
 import java.io.*;
 import java.util.*;
@@ -14,7 +14,7 @@ import cc.mallet.util.Randoms;
 import rs.types.*;
 import rs.util.vlc.Task1Solution;
 
-public class RTM implements java.io.Serializable {
+public class RelationalTopicModel implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static String BY = "x"; 
 	public final static int LIST_SIZE = 30;
@@ -60,22 +60,100 @@ public class RTM implements java.io.Serializable {
 	
 	public static final int testIndexStart = Task1Solution.testIndexStart;
 	
-	public RTM(int numTopics) {
+	public RelationalTopicModel(int numTopics) {
 		this(numTopics, 50.0, 0.01);
 	}
 	
-	public RTM(int numTopics, double alphaSum, double beta) {
+	public RelationalTopicModel(int numTopics, double alphaSum, double beta) {
 		this.numOfTopics = numTopics;
 		this.alpha = alphaSum/numOfTopics;
 		this.beta = beta;
 	}
+	
 
+	
 	public void addPair(int doc1, int doc2, double sim) {
 		PairedInfo p = links.get(doc1);
 		if (p == null) {
 			p = new PairedInfo(doc1);
 		}
 		p.add(doc2, sim);
+	}
+	
+	/**
+	 * Calculate the factor of paired links for the process of drawing a new 
+	 * topic for a token in Gibbs sampling  
+	 * 
+	 * @param k topic we need to calculate weight.
+	 * @param di document we are sampling.
+	 * @param si token we are sampling
+	 * @param term term of the sampled token
+	 * @param docLen Length of specified document
+	 * @return
+	 */
+	private double _calculateLinkFactor(int k, int di, int si, int docLen) {
+		if (this.sigma == 0) return 0;
+		double f1, f2, f3;
+		f1 = f2 = f3 = 0;
+		int ll = links.get(di).getLength();
+		if (ll != 0) {
+			int[] pairedDocs = links.get(di).getPairedIdsArray();
+			for (int i=0; i<ll; i++) {
+				int dii = pairedDocs[i];
+				f1 += this.getPairedSim(di, dii) * zbar[dii][k];
+				f2 += (double)(eta[k]*zbar[dii][k])*(double)(eta[k]*zbar[dii][k]) /(double)(docLen*docLen);
+				double tmp = 0;
+				for(int ki=0; ki<numOfTopics; ki++) {
+					tmp += eta[ki]*zbar[di][ki]*zbar[dii][ki];
+				}
+				f3 += (double)2*eta[k]*zbar[dii][k]*tmp/(double)docLen;
+			}
+			f1 = f1*2*eta[k]/(double)docLen;
+		}
+		
+		double result = f1 - f2 + f3 /(double)(2*this.sigma);
+		return result;
+	}
+	
+	private double _calculateLinkFactor2(int k, int di, int si, int docLen) {
+		if (this.sigma == 0) return 0;
+		
+		double f3 = 0;
+		int ll = links.get(di).getLength();
+		if (ll != 0) {
+			int[] pairedDocs = links.get(di).getPairedIdsArray();
+			for (int i=0; i<ll; i++) {
+				int dii = pairedDocs[i];
+				double tmp = 0;
+				for(int ki=0; ki<numOfTopics; ki++) {
+					tmp += eta[ki]*zbar[di][ki]*zbar[dii][ki];
+				}
+				f3 += (double)2*eta[k]*zbar[dii][k]*tmp/(double)docLen;
+			}
+		}
+		double result = f1[di][k] - f2[di][k] + f3 /(double) (2*this.sigma);
+		return result;
+	}
+	
+	/* This method should be called once before sampling a document.
+	 * 
+	 */
+	private void _calculateF1F2ForADoc(int di, int docLen) {
+		int ll = links.get(di).getLength();
+		if (ll != 0) {
+			int[] pairedDocs = links.get(di).getPairedIdsArray();
+			Arrays.fill(f1[di], 0);
+			Arrays.fill(f2[di], 0);
+			for (int k=0; k<numOfTopics; k++) {
+				for (int i=0; i<ll; i++) {
+					int dii = pairedDocs[i];
+					f1[di][k] += this.getPairedSim(di, dii) * zbar[dii][k];
+					f2[di][k] += (double)(eta[k]*zbar[dii][k])*(double)(eta[k]*zbar[dii][k]);
+				}
+				f1[di][k] = f1[di][k]*2*eta[k]/(double)docLen;
+				f2[di][k] = f2[di][k]/(double)(docLen*docLen);
+			}
+		}
 	}
 	
 	/**
@@ -148,7 +226,7 @@ public class RTM implements java.io.Serializable {
 	public void estimate(int numIterations, Randoms r) {
 		if (documents == null || links == null) 
 			return;
-		int sampleIter = 20;
+		
 		numTerms = documents.getAlphabet().size();
 		int numDoc = documents.size();
 		this.vAlpha = alpha*numOfTopics;
@@ -161,6 +239,9 @@ public class RTM implements java.io.Serializable {
 		termTopicCounts = new int[numTerms][numOfTopics];
 		topicTokenCounts = new int[numOfTopics];
 		eta = new double[numOfTopics]; 	// the first value is intercept
+		
+		f1 = new double[numDoc][numOfTopics];
+		f2 = new double[numDoc][numOfTopics];
 		rFactor = new double[numDoc][numOfTopics];
 		
 		for(int di=0; di<numDoc; di++) {
@@ -174,15 +255,24 @@ public class RTM implements java.io.Serializable {
 				topicTokenCounts[topic]++;
 				termTopicCounts[fs.getIndexAtPosition(si)][topic]++;
 			}
-			_calculateZbar(di, docLen);
+			for(int ti=0; ti<numOfTopics; ti++) {
+				zbar[di][ti] = (double)docTopicCounts[di][ti] / (double)docLen;
+			}
 		}
 		_calculateXValue();
 		params(y, x);
+//		_calculateRFactorForDocs();
+		for(int di=0; di<numDoc; di++) {
+			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
+			int docLen = fs.getLength();
+			_calculateF1F2ForADoc(di, docLen);
+		}
 
 		for(int iter=0; iter<numIterations; iter++) {
-			gibbsSampling(r, sampleIter);
+			gibbsSampling(r);
 			_calculateXValue();
 			params(y, x);
+//			_calculateRFactorForDocs();
 			if (iter > 0 ) {
 				if (iter%50 == 0) {
 					System.out.println();
@@ -196,12 +286,6 @@ public class RTM implements java.io.Serializable {
 				System.out.print(".");
 			}
 		}		
-	}
-
-	private void _calculateZbar(int di, int docLen) {
-		for(int ti=0; ti<numOfTopics; ti++) {
-			zbar[di][ti] = ((double)docTopicCounts[di][ti]+alpha) / ((double)docLen + alpha);
-		}
 	}
 	
 	public void printRegressionParameters() {
@@ -237,45 +321,45 @@ public class RTM implements java.io.Serializable {
 		return -1;
 	}
 
-	private void gibbsSampling(Randoms r, int sampleIter) {
+	private void gibbsSampling(Randoms r) {
 		int oldTopic, newTopic, term;
 		double[] topicWeights = new double[this.numOfTopics];
-		double tw;
+		double tw, factor;
 		double topicWeightsSum;
 		int docLen;
-		for(int ii=0; ii<sampleIter; ii++) {
-			for(int di=0; di<documents.size(); di++) {
-				FeatureSequence fs = (FeatureSequence)documents.get(di).getData();
-				docLen = fs.getLength();
-				/* Calculate link probability for this document */
-				_calculateRFactorForADoc(di, docLen);
-				for (int si=0; si<docLen; si++) {
-					term = fs.getIndexAtPosition(si);
-					oldTopic = topics[di][si];
-					docTopicCounts[di][oldTopic]--;
-					termTopicCounts[term][oldTopic]--;
-					topicTokenCounts[oldTopic]--;	
-					Arrays.fill(topicWeights, 0);
-					topicWeightsSum = 0;
-					
-					for(int ti=0; ti<this.numOfTopics; ti++) {
-						tw = (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
-								/ (topicTokenCounts[ti] + tBeta) * rFactor[di][ti];
-						topicWeightsSum += tw;
-						topicWeights[ti] = tw;
-					}
-					newTopic = r.nextDiscrete(topicWeights, topicWeightsSum);
-					topics[di][si] = newTopic;
-					docTopicCounts[di][newTopic]++;
-					termTopicCounts[term][newTopic]++;
-					topicTokenCounts[newTopic]++;
+		for(int di=0; di<documents.size(); di++) {
+			FeatureSequence fs = (FeatureSequence)documents.get(di).getData();
+			docLen = fs.getLength();
+			_calculateF1F2ForADoc(di, docLen);
+			
+			for (int si=0; si<docLen; si++) {
+				term = fs.getIndexAtPosition(si);
+				oldTopic = topics[di][si];
+				docTopicCounts[di][oldTopic]--;
+				termTopicCounts[term][oldTopic]--;
+				topicTokenCounts[oldTopic]--;	
+				Arrays.fill(topicWeights, 0);
+				topicWeightsSum = 0;
+				zbar[di][oldTopic] = docTopicCounts[di][oldTopic]/docLen;	
+				
+				for(int ti=0; ti<this.numOfTopics; ti++) {
+//					factor = _calculateLinkFactor(ti, di, si, docLen);
+					factor = _calculateLinkFactor2(ti, di, si, docLen);
+//					factor = rFactor[di][ti];
+					tw = (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
+							/ (topicTokenCounts[ti] + tBeta) * Math.exp(factor); //* factor;  
+					topicWeightsSum += tw;
+					topicWeights[ti] = tw;
 				}
-				/* Update zbar values */
-				_calculateZbar(di, docLen);
+				newTopic = r.nextDiscrete(topicWeights, topicWeightsSum);
+				topics[di][si] = newTopic;
+				docTopicCounts[di][newTopic]++;
+				termTopicCounts[term][newTopic]++;
+				topicTokenCounts[newTopic]++;
+				zbar[di][newTopic] = (double)docTopicCounts[di][newTopic]/(double)docLen;
 			}
 		}
 	}
-	
 	
 	public void initFromFile(String trainMalletFile, String linkFile) throws IOException {
 		documents = InstanceList.load(new File(trainMalletFile));
@@ -450,15 +534,14 @@ public class RTM implements java.io.Serializable {
 	
 	public static void main(String[] args) throws IOException {
 		int numOfTopic = 40;
-		int numIter = 100;
+		int numIter = 500;
 		double alpha = 0.0016;
 		double beta = 0.0048;
 		
+		String solutionFile = "dataset/task1_solution.txt";
 		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
-		String simFile = "dataset/vlc/sim5p.csv";
-		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
-		String queryFile = "dataset/task1_query.en.f8.txt";
-		String targetFile = "dataset/task1_target.en.f8.txt";
+		String queryFile = "dataset/task1_query.csv";
+		String simFile = "dataset/sim.csv";
 		
 		if (args.length >= 2) {
 			numOfTopic = Integer.parseInt(args[0]);
@@ -472,7 +555,7 @@ public class RTM implements java.io.Serializable {
 		System.out.println("Number of topics: " + numOfTopic + ", number of iteration: " + numIter);
 		/* test */
 		long start = System.currentTimeMillis();
-		RTM rtm = new RTM(numOfTopic, alpha*numOfTopic, beta);
+		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic, alpha*numOfTopic, beta);
 		rtm.initFromFile(malletFile, simFile);
 	
 		Randoms r = new Randoms();

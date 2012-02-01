@@ -3,7 +3,7 @@ package rs.topics.separate;
 import java.util.Arrays;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import rs.topics.MalletMle;
+import rs.topics.recommender.MalletMle;
 import rs.util.vlc.Task1Solution;
 import cc.mallet.types.*;
 

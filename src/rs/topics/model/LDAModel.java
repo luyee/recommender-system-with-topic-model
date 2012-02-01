@@ -6,7 +6,7 @@
    This software is provided under the terms of the Common Public License,
    version 1.0, as published by http://www.opensource.org.  For further
    information, see the file `LICENSE' included with this distribution. */
-package rs.topics;
+package rs.topics.model;
 
 import java.io.*;
 import java.util.*;

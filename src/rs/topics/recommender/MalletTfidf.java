@@ -5,13 +5,14 @@
  * to do some further pre-processing so that punctuations and too 
  * short words should be eliminated.
  */
-package rs.topics;
+package rs.topics.recommender;
 
 import java.io.*;
 import java.util.Arrays;
 
 import cc.mallet.types.*;
 
+import rs.topics.model.RelationalTopicModel;
 import rs.util.vlc.Task1Solution;
 
 public class MalletTfidf implements Serializable {
@@ -72,7 +73,7 @@ public class MalletTfidf implements Serializable {
 			tf[docIdx] = new int[termNum];
 			tfidf[docIdx] = new double[termNum];
 			
-			countTf(tokens, termIndex[docIdx], tf[docIdx], termNum);
+			countTf(tokens, termIndex[docIdx], tf[docIdx]);
 			
 			for(int i=0; i<termIndex[docIdx].length; i++) {
 				int term = termIndex[docIdx][i];
@@ -123,7 +124,7 @@ public class MalletTfidf implements Serializable {
 	 * @param terms
 	 * @param freq
 	 */
-	protected void countTf(int[] tokens, int[] terms, int[] freq, int termNum) {
+	protected void countTf(int[] tokens, int[] terms, int[] freq) {
 		Arrays.sort(tokens);
 		Arrays.fill(freq, 0);
 		int si = 0, ti = 0;
@@ -197,6 +198,7 @@ public class MalletTfidf implements Serializable {
 	public static void main(String[] args) throws IOException {
 //		String malletFile = "dataset/vlc_lectures.all.en.f8.filtered.mallet";
 		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		String solutionFile = "dataset/task1_solution.en.f8.tfidf.txt";

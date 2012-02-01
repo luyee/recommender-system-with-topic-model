@@ -3,10 +3,11 @@
  * tfidf, we change tf into term probability calculated from topic model, then 
  * calculate term weight with termProb * idf.
  */
-package rs.topics;
+package rs.topics.recommender;
 
 import java.io.IOException;
 import java.util.Arrays;
+
 
 import cc.mallet.types.*;
 

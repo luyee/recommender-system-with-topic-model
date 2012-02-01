@@ -1,4 +1,4 @@
-package rs.topics;
+package rs.topics.recommender;
 
 import rs.util.vlc.Task1Solution;
 import cc.mallet.topics.*;
@@ -77,7 +77,8 @@ public class LDAIdfExplorer extends TopicIdfRecommender {
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String simFile = "dataset/sim.csv";
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
