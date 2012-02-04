@@ -471,13 +471,22 @@ public class LDAModel implements Serializable{
 	// Recommended to use mallet/bin/vectors2topics instead.
 	public static void main (String[] args) throws IOException
 	{
-		InstanceList ilist = InstanceList.load (new File(args[0]));
-		int numIterations = args.length > 1 ? Integer.parseInt(args[1]) : 1000;
-		int numTopWords = args.length > 2 ? Integer.parseInt(args[2]) : 20;
-		System.out.println ("Data loaded.");
-		LDAModel lda = new LDAModel (10);
-		lda.estimate (ilist, numIterations, 50, 0, null, new Randoms());  // should be 1100
-		lda.printTopWords (numTopWords, true);
-		lda.printDocumentTopics (new File(args[0]+".lda"));
+//		InstanceList ilist = InstanceList.load (new File(args[0]));
+//		int numIterations = args.length > 1 ? Integer.parseInt(args[1]) : 1000;
+//		int numTopWords = args.length > 2 ? Integer.parseInt(args[2]) : 20;
+//		System.out.println ("Data loaded.");
+//		LDAModel lda = new LDAModel (10);
+//		lda.estimate (ilist, numIterations, 50, 0, null, new Randoms());  // should be 1100
+//		lda.printTopWords (numTopWords, true);
+//		lda.printDocumentTopics (new File(args[0]+".lda"));
+		String malletFile = "dataset/cora/cora.mallet";
+		int numIter = 2000;
+		int numTopic = 8;
+		double alpha = 0.1;
+		double beta  = 0.1;
+		LDAModel lda = new LDAModel(numTopic, alpha * numTopic, beta);
+		InstanceList documents = InstanceList.load(new File(malletFile));
+		lda.estimate(documents, numIter, 0, 0, null, new Randoms());
+		lda.printTopWords(10, false);
 	}
 }

@@ -28,7 +28,6 @@ public class RelationalTopicModel implements java.io.Serializable {
 	public InstanceList documents;
 	public TObjectIntHashMap<String> idHash;
 	public TObjectIntHashMap<String> pairIdHash; 	// v1xv2 -> int
-	public ArrayList <String> pairIds;
 
 	public ArrayList<PairedInfo> links;
 	public int numIterations;
@@ -485,7 +484,6 @@ public class RelationalTopicModel implements java.io.Serializable {
 			}
 		}
 		pairIdHash = new TObjectIntHashMap<String>();
-		pairIds = new ArrayList<String>();
 		TDoubleArrayList simArray = new TDoubleArrayList();
 		
 		BufferedReader reader = new BufferedReader(
@@ -511,7 +509,6 @@ public class RelationalTopicModel implements java.io.Serializable {
 			if( !this.containsPair(doc1, doc2)) {
 				pairIdHash.put(pairIdString(doc1, doc2), numOfLinks);
 				simArray.add(sim);
-				pairIds.add(pairIdString(doc1, doc2));
 				numOfLinks++;
 			} else {
 				System.err.println("Duplicated pair:" + fields[0] + ", " + fields[1] + fields[2]);

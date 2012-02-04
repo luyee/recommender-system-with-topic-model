@@ -10,7 +10,6 @@ import java.io.*;
 import java.util.*;
 
 import gnu.trove.iterator.*;
-import gnu.trove.list.array.*;
 import gnu.trove.map.hash.*;
 
 import cc.mallet.types.*;
@@ -28,7 +27,6 @@ public class PrimeRtm implements java.io.Serializable {
 	public InstanceList documents;
 	public TObjectIntHashMap<String> idHash;
 	public TObjectIntHashMap<String> pairIdHash; 	// v1xv2 -> int
-	public ArrayList <String> pairIds;
 
 	public ArrayList<PairedInfo> links;
 	public int numIterations;
@@ -96,8 +94,8 @@ public class PrimeRtm implements java.io.Serializable {
 	}
 	
 	public boolean containsPair(int v1, int v2) {
-		if (pairIdHash.containsKey(pairIdString(v1, v2)) ||
-				pairIdHash.containsKey(pairIdString(v2, v1)) ) 
+		if (pairIdHash.containsKey(pairIdString(v1, v2)) )
+//				|| pairIdHash.containsKey(pairIdString(v2, v1)) ) 
 			return true;
 		else 
 			return false;
@@ -118,7 +116,7 @@ public class PrimeRtm implements java.io.Serializable {
 		x = new double[numOfLinks][numOfTopics];
 		termTopicCounts = new int[numTerms][numOfTopics];
 		topicTokenCounts = new int[numOfTopics];
-		eta = new double[numOfTopics]; 	// the first value is intercept
+		eta = new double[numOfTopics]; 
 		
 		for(int di=0; di<numDoc; di++) {
 			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
@@ -133,7 +131,8 @@ public class PrimeRtm implements java.io.Serializable {
 			}
 			_calculateZbar(di, docLen);
 		}
-		params();
+//		params();
+		Arrays.fill(eta, 3);
 
 		for(int iter=0; iter<numIterations; iter++) {
 			gibbsSampling(r, sampleIter);
@@ -204,7 +203,7 @@ public class PrimeRtm implements java.io.Serializable {
 		return -1;
 	}
 
-	private void gibbsSampling(Randoms r, int sampleIter) {
+	public void gibbsSampling(Randoms r, int sampleIter) {
 		int oldTopic, newTopic, term;
 		double[] topicWeights = new double[this.numOfTopics];
 		double tw;
@@ -230,8 +229,8 @@ public class PrimeRtm implements java.io.Serializable {
 					topicWeightsSum = 0;
 					
 					for(int ti=0; ti<this.numOfTopics; ti++) {
-						tw = (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
-								/ (topicTokenCounts[ti] + tBeta) * link_probs[ti];
+						tw = link_probs[ti] * (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
+								/ (topicTokenCounts[ti] + tBeta);
 						topicWeightsSum += tw;
 						topicWeights[ti] = tw;
 					}
@@ -255,6 +254,9 @@ public class PrimeRtm implements java.io.Serializable {
 //		InstanceList testDocuments = InstanceList.load(new File(testMalletFile));
 		initIdHash();
 		readLinksIntoMemory(linkFile);
+		
+		/* Initialize lambda */
+		lambda = (double)numOfLinks /(double) (documents.size() * (documents.size() -1)/2);
 	}
 	
 	/**
@@ -306,8 +308,7 @@ public class PrimeRtm implements java.io.Serializable {
 	}
 	
 
-	public void printTopWords (int numWords, boolean useNewLines)
-	{
+	public void printTopWords (int numWords, boolean useNewLines) {
 		class WordProb implements Comparable {
 			int wi;
 			double p;
@@ -353,7 +354,7 @@ public class PrimeRtm implements java.io.Serializable {
 			}
 		}
 		pairIdHash = new TObjectIntHashMap<String>();
-		pairIds = new ArrayList<String>();
+//		pairIds = new ArrayList<String>();
 		
 		BufferedReader reader = new BufferedReader(
 				new FileReader(linkFile));
@@ -377,18 +378,16 @@ public class PrimeRtm implements java.io.Serializable {
 			
 			if( !this.containsPair(doc1, doc2)) {
 				pairIdHash.put(pairIdString(doc1, doc2), numOfLinks);
-				pairIds.add(pairIdString(doc1, doc2));
 				numOfLinks++;
 			} else {
-				System.err.println("Duplicated pair:" + fields[0] + ", " + fields[1] + fields[2]);
+				System.err.println("Duplicated pair:" + fields[0] + ", " + fields[1] );
 			}
 			
 			this.addPair(doc1, doc2, sim);
-			this.addPair(doc2, doc1, sim);
+//			this.addPair(doc2, doc1, sim);
 		}
 		reader.close();
-		/* Initialize lambda */
-		lambda = (double)numOfLinks /(double) (documents.size() * (documents.size() -1)/2);
+		System.out.println("Num of links: " + numOfLinks);
 	}
 	
 	/**
@@ -404,17 +403,18 @@ public class PrimeRtm implements java.io.Serializable {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		int numOfTopic = 40;
-		int numIter = 100;
-		double alpha = 0.0016;
-		double beta = 0.0048;
+		int numOfTopic = 8;
+		int numIter = 30;
+		double alpha = 0.1;
+		double beta = 0.1;
 		
-		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
-		String simFile = "dataset/vlc/sim5p.csv";
-		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
-		String queryFile = "dataset/task1_query.en.f8.txt";
-		String targetFile = "dataset/task1_target.en.f8.txt";
-		
+//		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+		String malletFile = "dataset/cora/cora.mallet";
+		String simFile = "dataset/cora/links.txt";
+		PrimeRtm rtm = new PrimeRtm(numOfTopic, alpha*numOfTopic, beta);
+		rtm.initFromFile(malletFile, simFile);
+		rtm.estimate(numIter, new Randoms());
+		rtm.printTopWords(10, false);
 	}
 }
 

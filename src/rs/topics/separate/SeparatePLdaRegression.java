@@ -20,7 +20,6 @@ public class SeparatePLdaRegression extends SeparateParallelLda {
 	
 	public TObjectIntHashMap<String> idHash;
 	public TObjectIntHashMap<String> pairIdHash; 	// v1xv2 -> int
-	public ArrayList <String> pairIds;
 	public ArrayList<PairedInfo> links;
 	public int numOfLinks;
 	
@@ -48,7 +47,6 @@ public class SeparatePLdaRegression extends SeparateParallelLda {
 		rtm.initFromFile(malletFile, pairFile);
 		this.idHash = rtm.idHash;
 		this.pairIdHash = rtm.pairIdHash;
-		this.pairIds = rtm.pairIds;
 		this.links = rtm.links;
 		this.numOfLinks = rtm.numOfLinks;
 		this.y = rtm.y;

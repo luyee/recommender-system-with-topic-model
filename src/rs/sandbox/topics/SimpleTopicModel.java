@@ -17,10 +17,12 @@ public class SimpleTopicModel {
 		
 	}
 	
-	public static void main(String[] args) {
-		InstanceList instances = InstanceList.load(new File("dataset/vlc_lectures_train.mallet"));
-		LDA lda = new LDA(10);
-		lda.estimate (instances, 500, 5000, 0, null, new Randoms());  // should be 1100
-		lda.printTopWords (10, true);
+	public static void main(String[] args) throws IOException {
+		InstanceList instances = InstanceList.load(new File("dataset/cora/cora.mallet"));
+		ParallelTopicModel lda = new ParallelTopicModel(8, 0.1*8, 0.1);
+		lda.addInstances(instances);
+		lda.setNumIterations(2000);
+		lda.estimate();
+		lda.printTopWords(System.out, 10, false);
 	}
 }

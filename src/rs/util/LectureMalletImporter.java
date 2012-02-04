@@ -9,7 +9,6 @@ import java.util.regex.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
-import java.text.Normalizer;
 
 import cc.mallet.pipe.*;
 import cc.mallet.pipe.Pipe;
@@ -53,8 +52,10 @@ public class LectureMalletImporter {
 	public static void main(String[] args) throws IOException {
 //		String input = "dataset/lectures_test.csv";
 //		String output = "dataset/vlc_lectures.all.en.f8.filtered.txt";
-		String output = "dataset/vlc_lectures.all.5000term.txt";
-		String malletOutput = "dataset/vlc_lectures.all.5000term.mallet";
+//		String output = "dataset/vlc_lectures.all.5000term.txt";
+		String output = "dataset/cora/cora.txt";
+//		String malletOutput = "dataset/vlc_lectures.all.5000term.mallet";
+		String malletOutput = "dataset/cora/cora.mallet";
 //		ExtractText extractor = new ExtractText(input, output, 0,2,7,8);
 //		extractor.doExtraction();
 		
@@ -63,9 +64,9 @@ public class LectureMalletImporter {
 		instances.save(new File(malletOutput));
 		
 		InstanceList instances2 = InstanceList.load(new File(malletOutput));
-		
-		System.out.println(instances2.get(5221).getName());
-		System.out.println(instances2.get(5236).getName());
+		System.out.println(instances2.get(1000).getName());
+//		System.out.println(instances2.get(5221).getName());
+//		System.out.println(instances2.get(5236).getName());
 //		saveCorpus(instances2);
 	}
 	
