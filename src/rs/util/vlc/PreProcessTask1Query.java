@@ -1,12 +1,6 @@
-package rs.util.vlc;
-
-import java.io.*;
-import java.util.regex.*;
-
-import gnu.trove.map.hash.*;
 
 /**
- * In this class we want to do some preprocessing on task1 query. We want to remove 
+ * In this class does some preprocessing on task1 query. We want to remove 
  * those videos in query which do not have enough co-viewed videos, and those  
  * not in English.
  * 
@@ -16,6 +10,14 @@ import gnu.trove.map.hash.*;
  * @author Haibin
  *
  */
+
+package rs.util.vlc;
+
+import java.io.*;
+import java.util.regex.*;
+
+import gnu.trove.map.hash.*;
+
 
 public class PreProcessTask1Query {
 	
@@ -133,11 +135,12 @@ public class PreProcessTask1Query {
 	}
 	
 	static public void main(String[] args) throws IOException {
-//		PreProcessTask1Query.filterQuery("dataset/ids.en.f8.train.txt", "dataset/task1_query.csv", "dataset/task1_query.en.f8.txt");
-//		PreProcessTask1Query.filterSolution("dataset/ids.en.f8.train.txt", "dataset/task1_target.txt",
-//				"dataset/task1_target.en.f8.txt");
-		PreProcessTask1Query.filterDocuments(
-				"dataset/vlc_lectures.all.en.f8.txt", 
-				"dataset/vlc_lectures.all.en.f8.filtered.txt");
+		PreProcessTask1Query.filterQuery("dataset/vlc/ids.en.title.f2.train.txt", 
+					"dataset/vlc/task1_query.csv", "dataset/vlc/task1_query.en.title.f2.txt");
+		PreProcessTask1Query.filterSolution("dataset/vlc/ids.en.title.f2.train.txt", "dataset/vlc/task1_target.txt",
+				"dataset/vlc/task1_target.en.title.f2.txt");
+//		PreProcessTask1Query.filterDocuments(
+//				"dataset/vlc_lectures.all.en.f8.txt", 
+//				"dataset/vlc_lectures.all.en.f8.filtered.txt");
 	}
 }

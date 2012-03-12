@@ -7,14 +7,23 @@ import java.io.*;
 import java.text.Normalizer;
 import java.util.*;
 
+import rs.util.StringRemoveStopWords;
+
 import au.com.bytecode.opencsv.*;
 
 public class ExtractText {
 	public static final int NO_FILTER_INDEX = -1;
 	public static final String NO_FILTER_VALUE = null; 
 	public static final char DEFAULT_SEPARATOR = ' ';
-	public static final int DOC_SIZE_THRESHODL = 8;	// In case we need to filter out too short documents.
+	public static final int DOC_SIZE_THRESHODL = 2;	// In case we need to filter out too short documents.
+	
+	final String pattern = "\\p{L}[\\p{L}\\p{P}]+\\p{L}";
+	StringRemoveStopWords stopper;
 		
+	public void setStopper(StringRemoveStopWords stopper) {
+		this.stopper = stopper;
+	}
+
 	String inputFileName;	// Input file name
 	String outputFileName;	// Output file name
 	int[] fieldIdx;			// Fileds that need to be extracted, 
@@ -39,7 +48,7 @@ public class ExtractText {
 	}
 	
 	public ExtractText(String input, String output, char separator, 
-			int filterIdx, String filterVal, int... fields) {
+				int filterIdx, String filterVal, int... fields) {
 		this.inputFileName = input;
 		this.outputFileName = output;
 		this.separator = separator;
@@ -68,8 +77,16 @@ public class ExtractText {
 	private boolean qualifyLength(String[] fields) {
 		int total = 0;
 		for(int i=0; i<fields.length; i++) {
-			String[] tmp = fields[i].split("\\W");
-			total += tmp.length;
+//			String[] tmp = fields[i].split("\\W");
+//			total += tmp.length;
+			if (i>1) {
+				String[] tmp = fields[i].split("\\W+");
+				for (int j=0; j<tmp.length; j++) {
+					if(!tmp[j].matches(pattern)) continue;
+					if(stopper.isStopword(tmp[j])) continue;
+					total++;					
+				}
+			}
 		}
 		if(total > DOC_SIZE_THRESHODL) 
 			return true;
@@ -129,12 +146,15 @@ public class ExtractText {
 	}
 	
 	public static void main(String[] args) {
-		String input = "dataset/lectures_test.csv";
+		String input = "dataset/lectures_train.csv";
 //		String input = "dataset/test.txt";
-		String output = "dataset/vlc_test.en.f8.txt";
+		String output = "dataset/vlc/vlc_train.title.en.f2.txt";
 //		String output = "dataset/vlc_lectures_train.txt";
 //		ExtractText extractor = new ExtractText(input, output, 2, "en", 0,2,7,8);
-		ExtractText extractor = new ExtractText(input, output, 2, "en", 0,2,6,7);
+//		ExtractText extractor = new ExtractText(input, output, 2, "en", 0,2,6,7);
+		ExtractText extractor = new ExtractText(input, output, 2, "en", 0,2,7);
+		StringRemoveStopWords stopper = new StringRemoveStopWords(new File("stoplists/en.txt.cp"), "UTF-8");
+		extractor.setStopper(stopper);
 		
 //		ExtractText extractor = new ExtractText(input, output, 0,2,6,7);
 		if (extractor.doExtraction()) {

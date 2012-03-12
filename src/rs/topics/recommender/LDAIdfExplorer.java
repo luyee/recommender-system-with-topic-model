@@ -15,6 +15,7 @@ public class LDAIdfExplorer extends TopicIdfRecommender {
 	public void setPtm(ParallelTopicModel p) {
 		this.lda = p;
 	}
+	
 	public void calculateProb() {
 		phi = new double[lda.numTypes][lda.numTopics];
 		theta = new double[lda.data.size()][];
@@ -77,8 +78,8 @@ public class LDAIdfExplorer extends TopicIdfRecommender {
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-//		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
-		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
+		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String simFile = "dataset/sim.csv";
 		String queryFile = "dataset/task1_query.en.f8.txt";
 		String targetFile = "dataset/task1_target.en.f8.txt";
@@ -90,12 +91,13 @@ public class LDAIdfExplorer extends TopicIdfRecommender {
 		
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		int numIterations = 2000;
-		double alpha = 0.005;
-		for(int i=0; i<10; i++) {
-			alpha *= 2;
-			int topic = 10;
-			for (int m=0; m<6; m++) {
-				topic *= 2;
+//		double alpha = 0.005;
+		double alpha = 0.0016;
+//		for(int i=0; i<10; i++) {
+//			alpha *= 2;
+			int topic = 160;
+//			for (int m=0; m<6; m++) {
+//				topic *= 2;
 				double beta = 0.00005;
 //				for (int n=0; n<2; n++) {
 					beta *= 2;
@@ -116,8 +118,8 @@ public class LDAIdfExplorer extends TopicIdfRecommender {
 						e.printStackTrace();
 					}
 //				}
-			}
-		}
+//			}
+//		}
 //		writer.flush();
 //		writer.close();
 	}

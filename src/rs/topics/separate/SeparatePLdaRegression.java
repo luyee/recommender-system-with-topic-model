@@ -117,8 +117,8 @@ public class SeparatePLdaRegression extends SeparateParallelLda {
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
 		int numTopics = 160;
-		int numIterations = 500;
-		double alpha = 0.0016;
+		int numIterations = 2000;
+		double alpha = 0.0048;
 		double beta = 0.0001;
 		
 		InstanceList documents = InstanceList.load(new File(malletFile));

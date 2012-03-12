@@ -1,3 +1,6 @@
+/**
+ * This class comes from Vlc challenge. 
+ */
 package rs.util.vlc;
 
 import java.io.*;

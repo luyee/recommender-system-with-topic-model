@@ -9,8 +9,8 @@ import gnu.trove.list.array.*;
 
 public class NormalizePairFeature {
 	TIntIntHashMap idHash; // idsHash[ids] = num, num will be the index in the matrix
-	final int FREQ_THRESH = 0;
-	final double RATE_THRESH = 0.05;
+	final static int FREQ_THRESH = 100;
+	final static double RATE_THRESH = 0;
 	int vSize;
 	
 //	int[][] pairs;
@@ -124,7 +124,7 @@ public class NormalizePairFeature {
 			double sim2 = (double)freq/(double)totalFreq[idHash.get(id2)];
 			
 			if ( freq < FREQ_THRESH || (sim1 < RATE_THRESH && sim2 < RATE_THRESH) ) continue;
-			double sim = freq/((double)totalFreq[idHash.get(id1)] + (double)totalFreq[idHash.get(id2)]);
+			double sim = 2*freq/((double)totalFreq[idHash.get(id1)] + (double)totalFreq[idHash.get(id2)]);
 			features.put(key1, sim);
 			features.put(key2, sim);
 			line++;
@@ -160,7 +160,7 @@ public class NormalizePairFeature {
 			idPos++;
 		}
 		reader.close();
-		vSize = idHash.size();
+		vSize = idHash.size(); 
 		System.out.println(vSize);
 		totalFreq = new int[vSize];
 //		pairs = new int[vSize][vSize];
@@ -168,7 +168,6 @@ public class NormalizePairFeature {
 		features = new TObjectDoubleHashMap<String>();
 	}
 
-	
 	/** Test 
 	 * @throws IOException */
 	public static void main(String[] args) throws IOException {
@@ -176,6 +175,6 @@ public class NormalizePairFeature {
 		String pairFile = "dataset/pairs.csv";
 		f.readPairsData("dataset/lecture_ids.csv", "dataset/pairs.csv");
 		f.normalizeFeature(pairFile);
-		f.outputFeature("dataset/vlc/sim5p.csv");
+		f.outputFeature("dataset/vlc/sim_0p_100n.csv");
 	}
 }

@@ -59,12 +59,14 @@ public class ParallelLdaRecommender extends TopicRecommender{
 	}
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
+		String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
 //		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
 		String simFile = "dataset/vlc/sim5p.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
-		String queryFile = "dataset/task1_query.en.f8.txt";
-		String targetFile = "dataset/task1_target.en.f8.txt";
+//		String queryFile = "dataset/task1_query.en.f8.txt";
+//		String targetFile = "dataset/task1_target.en.f8.txt";
+		String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
+		String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";
 		
 		int numTopics = 160;
 		int numIterations = 2000;
@@ -77,6 +79,8 @@ public class ParallelLdaRecommender extends TopicRecommender{
 		lda.setNumThreads(4);
 		lda.setNumIterations(numIterations);
 		lda.setSymmetricAlpha(false);
+		lda.setTopicDisplay(1000, 5);
+		lda.printLogLikelihood = false;
 		lda.estimate();
 		lda.printTopWords(System.out, 10, true);
 		

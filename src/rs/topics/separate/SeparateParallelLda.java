@@ -149,7 +149,7 @@ public class SeparateParallelLda {
 		String targetFile = "dataset/task1_target.en.f8.txt";
 		
 		int numTopics = 160;
-		int numIterations = 500;
+		int numIterations = 2000;
 		double alpha = 0.0016;
 		double beta = 0.0001;
 		

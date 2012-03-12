@@ -14,6 +14,12 @@ public class PairedInfo implements Serializable{
 		this.pairedVideos = new TIntDoubleHashMap();
 	}
 	
+	public boolean isEmpty() {
+		if (pairedVideos.size() == 0) 
+			return true;
+		return false;
+	}
+	
 	public void add(int pairedId, double sim) {
 		if (!pairedVideos.contains(pairedId)) {
 			pairedVideos.put(pairedId, sim);
@@ -29,11 +35,11 @@ public class PairedInfo implements Serializable{
 		if(pairedVideos.contains(pid)) {
 			return pairedVideos.get(pid);
 		} else {
-			return -1;
+			return 0;
 		}
 	}
 	
-	public TIntDoubleHashMap getPariedVideos() {
+	public TIntDoubleHashMap getPairedVideos() {
 		return this.pairedVideos;
 	}
 

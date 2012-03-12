@@ -29,6 +29,10 @@ public class MalletTfidf implements Serializable {
 
 	public InstanceList documents;
 	public Task1Solution solver;
+	
+	public MalletTfidf() {
+		
+	}
 		
 	public MalletTfidf(InstanceList doc) {
 		this.documents = doc;		
@@ -46,7 +50,10 @@ public class MalletTfidf implements Serializable {
 				for(int i=0; i<test_size; i++) {
 					predSim[i] = getTfidfSim(qdocId, testIndexStart+i);		
 				}
-				String line = sortRecommendList(qdocId, predSim);
+				
+//				String line = sortRecommendList2(qdocId, predSim);
+				int[] idxList = topRankedVideoIndices(predSim, LIST_SIZE);
+				String line = sortFilteredRecommendList(qdocId, predSim, idxList);
 				return line;
 			}
 		};
@@ -72,7 +79,7 @@ public class MalletTfidf implements Serializable {
 			termIndex[docIdx] = new int[termNum];
 			tf[docIdx] = new int[termNum];
 			tfidf[docIdx] = new double[termNum];
-			
+//			System.out.println("docIdx: " + docIdx + "\n" + fs.toString());
 			countTf(tokens, termIndex[docIdx], tf[docIdx]);
 			
 			for(int i=0; i<termIndex[docIdx].length; i++) {
@@ -82,7 +89,6 @@ public class MalletTfidf implements Serializable {
 		}
 		calculateIdf();
 		calculateTfidf();
-		
 	}
 	
 	protected void calculateTfidf() {
@@ -129,7 +135,7 @@ public class MalletTfidf implements Serializable {
 		Arrays.fill(freq, 0);
 		int si = 0, ti = 0;
 		terms[ti] = tokens[si];
-		freq[0] = 1;
+		freq[0] = 0;
 		for (; si<tokens.length; si++) {
 			if (terms[ti] != tokens[si]) {
 				ti++;
@@ -139,7 +145,7 @@ public class MalletTfidf implements Serializable {
 		}
 	}
 
-	private double getTfidfSim(int qdocId, int targetDocId) {
+	public double getTfidfSim(int qdocId, int targetDocId) {
 		// TODO Auto-generated method stub
 		double[] qTfidf = tfidf[qdocId];
 		double[] tTfidf = tfidf[targetDocId];
@@ -197,11 +203,16 @@ public class MalletTfidf implements Serializable {
 	
 	public static void main(String[] args) throws IOException {
 //		String malletFile = "dataset/vlc_lectures.all.en.f8.filtered.mallet";
-		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
-//		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
-		String queryFile = "dataset/task1_query.en.f8.txt";
-		String targetFile = "dataset/task1_target.en.f8.txt";
-		String solutionFile = "dataset/task1_solution.en.f8.tfidf.txt";
+		String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc/vlc_lectures.all.title.en.f2.mallet";
+//		String malletFile = "dataset/vlc/vlc_lectures.all.5000term.mallet";
+//		String queryFile = "dataset/vlc/task1_query.en.f8.txt";
+//		String targetFile = "dataset/vlc/task1_target.en.f8.txt";
+		String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
+		String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";
+//		String queryFile = "dataset/vlc/task1_query.en.title.f2.txt";
+//		String targetFile = "dataset/vlc/task1_target.en.title.f2.txt";
+		String solutionFile = "dataset/task1_solution.en.title.f2.tfidf.txt";
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		FeatureSequence fs = (FeatureSequence)documents.get(0).getData();
 		String s = (String)fs.getObjectAtPosition(0);

@@ -61,6 +61,31 @@ public class LDALinkLikelihood {
 		return loglikelihood;
 	}
 	
+	public double[] linkSimilarity(ArrayList<Edge> samples) {
+		double[] sim = new double[samples.size()];
+		double[] eta = this.eta;
+		double meta = 0;
+		for(int i=0; i<eta.length; i++) {
+			if(eta[i] > meta)
+				meta = eta[i];
+		}
+		int eIdx = 0;
+		Iterator<Edge> iterator = samples.iterator();
+		while(iterator.hasNext()) {
+			Edge edge = iterator.next();
+			int d1 = edge.node1;
+			int d2 = edge.node2;
+			double sum = 0;
+			for (int k=0; k<lda.numTopics; k++) {
+				sum += eta[k] * zbar[d1][k] * zbar[d2][k];
+			}
+			sum -= meta;
+			sim[eIdx] = Math.exp(sum);
+			eIdx++;
+		}
+		return sim;
+	}
+	
 	
 	private void _calculateZbar() {
 		// TODO Auto-generated method stub
@@ -76,7 +101,7 @@ public class LDALinkLikelihood {
 			FeatureSequence fs = (FeatureSequence)lda.ilist.get(di).getData();
 			int docLen = fs.getLength();
 			for(int ti=0; ti<lda.numTopics; ti++) {
-				zbar[di][ti] = (lda.docTopicCounts[di][ti]+lda.alpha) / ((double)docLen + lda.alpha);
+				zbar[di][ti] = (lda.docTopicCounts[di][ti]+lda.alpha) / ((double)docLen + lda.alpha * lda.numTopics);
 			}
 		}
 	}

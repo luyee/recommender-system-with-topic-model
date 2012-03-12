@@ -43,17 +43,22 @@ public class LDARecommender extends TopicRecommender{
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		int numOfTopics = 160;
-		int numIter = 1000;
+		int numIter = 2000;
 		double alpha = 0.0016;
 		double beta = 0.0048;
 		LDAModel lda = new LDAModel(numOfTopics, alpha*numOfTopics, beta);
 		
-//		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
-		String malletFile = "dataset/vlc_lectures.all.5000term.mallet";
-		String simFile = "dataset/vlc/sim5p.csv";
+		String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc/vlc_lectures.all.title.en.f2.mallet";
+		String simFile = "dataset/vlc/sim_0p_10n.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
-		String queryFile = "dataset/task1_query.en.f8.txt";
-		String targetFile = "dataset/task1_target.en.f8.txt";
+//		String queryFile = "dataset/task1_query.en.f8.txt";
+//		String targetFile = "dataset/task1_target.en.f8.txt";
+		String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
+		String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";	
+		
+//		String queryFile = "dataset/vlc/task1_query.en.title.f2.txt";
+//		String targetFile = "dataset/vlc/task1_target.en.title.f2.txt";
 
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		lda.estimate(documents, numIter, 0, 0, null, new Randoms());

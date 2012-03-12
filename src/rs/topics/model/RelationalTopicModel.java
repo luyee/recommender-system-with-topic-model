@@ -74,8 +74,6 @@ public class RelationalTopicModel implements java.io.Serializable {
 		this.beta = beta;
 	}
 	
-
-	
 	public void addPair(int doc1, int doc2, double sim) {
 		PairedInfo p = links.get(doc1);
 		if (p == null) {
@@ -559,12 +557,12 @@ public class RelationalTopicModel implements java.io.Serializable {
 		long start = System.currentTimeMillis();
 		RelationalTopicModel rtm = new RelationalTopicModel(numOfTopic, alpha*numOfTopic, beta);
 		rtm.initFromFile(malletFile, simFile);
-	
+		System.out.println("document size:" + rtm.documents.size());
+		System.out.println("link size:" + rtm.numOfLinks);
+
 		Randoms r = new Randoms();
 		rtm.estimate(numIter, r);
-		System.out.println("document size:" + rtm.documents.size());
 		System.out.println("Link document length: " + rtm.links.size());
-		System.out.println("link size:" + rtm.numOfLinks);
 		System.out.println("Pair size: " + rtm.pairIdHash.size());
 		
 		int ps = 0;

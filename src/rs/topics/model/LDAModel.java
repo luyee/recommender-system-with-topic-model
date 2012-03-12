@@ -152,12 +152,12 @@ public class LDAModel implements Serializable{
 	{
 		long startTime = System.currentTimeMillis();
 		for (int iterations = 0; iterations < numIterations; iterations++) {
-			if ((iterations > 0) && (iterations % 100 == 0)) 
+			if ((iterations > 0) && (iterations % 500 == 0)) 
 				System.out.println(); 
-			else if (iterations % 10 == 0) 
+			else if (iterations % 100 == 0) 
 				System.out.print (iterations);
-			else 
-				System.out.print (".");
+//			else 
+//				System.out.print (".");
 			System.out.flush();
 			if (showTopicsInterval != 0 && iterations % showTopicsInterval == 0 && iterations > 0) {
 				System.out.println ();
@@ -488,5 +488,12 @@ public class LDAModel implements Serializable{
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		lda.estimate(documents, numIter, 0, 0, null, new Randoms());
 		lda.printTopWords(10, false);
+		
+		double topicDist[] = new double[lda.topics.length];
+		
+//		docLen = topics[di].length;
+//	      for (int ti = 0; ti < numTopics; ti++)
+//	        topicDist[ti] = (((float)docTopicCounts[di][ti])/docLen);
+	    
 	}
 }

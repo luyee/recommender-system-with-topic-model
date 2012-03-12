@@ -15,23 +15,24 @@ import gnu.trove.map.hash.*;
 import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
 
+import rs.topics.recommender.MalletTfidf;
 import rs.types.*;
 import rs.util.vlc.Task1Solution;
 
-public class PrimeRtm implements java.io.Serializable {
+public class PrimeRtm extends MalletTfidf{
 	private static final long serialVersionUID = 1L;
 	public final static String BY = "x"; 
 	public final static int LIST_SIZE = 30;
 	public final static int TIMES = 20;
 
-	public InstanceList documents;
+//	public InstanceList documents;
 	public TObjectIntHashMap<String> idHash;
 	public TObjectIntHashMap<String> pairIdHash; 	// v1xv2 -> int
 
 	public ArrayList<PairedInfo> links;
 	public int numIterations;
 	public int numOfTopics;
-	public int numTerms;
+//	public int numOfTerms;
 	
 	public int numOfLinks;
 	public double alpha;
@@ -101,20 +102,49 @@ public class PrimeRtm implements java.io.Serializable {
 			return false;
 	}
 	
-	public void estimate(int numIterations, Randoms r) {
+	public void estimate2(int numIterations, Randoms r, int sampleIter) {
 		if (documents == null || links == null) 
 			return;
-		int sampleIter = 20;
-		numTerms = documents.getAlphabet().size();
+		
+		this.vAlpha = alpha*numOfTopics;
+		this.tBeta = beta * numOfTerms;
+		eta = new double[numOfTopics]; 
+		zbar = new double[documents.size()][numOfTopics];
+		x = new double[numOfLinks][numOfTopics];
+
+		Arrays.fill(eta, 3);
+		gibbsSampling2(r, sampleIter);
+		params();
+
+		for(int iter=1; iter<numIterations; iter++) {
+			gibbsSampling2(r, sampleIter);
+			params();
+			if (iter > 0 ) {
+				if (iter%50 == 0) {
+					System.out.println();
+				}
+			}
+			if (iter%10 == 0) {
+				System.out.print(iter);				
+			} else {
+				System.out.print(".");
+			}
+		}		
+	}
+	
+	public void estimate(int numIterations, Randoms r, int sampleIter) {
+		if (documents == null || links == null) 
+			return;
+		numOfTerms = documents.getAlphabet().size();
 		int numDoc = documents.size();
 		this.vAlpha = alpha*numOfTopics;
-		this.tBeta = beta * numTerms;
+		this.tBeta = beta * numOfTerms;
 		
 		topics = new int[numDoc][];
 		docTopicCounts = new int[numDoc][numOfTopics];
 		zbar = new double[numDoc][numOfTopics];
 		x = new double[numOfLinks][numOfTopics];
-		termTopicCounts = new int[numTerms][numOfTopics];
+		termTopicCounts = new int[numOfTerms][numOfTopics];
 		topicTokenCounts = new int[numOfTopics];
 		eta = new double[numOfTopics]; 
 		
@@ -131,8 +161,8 @@ public class PrimeRtm implements java.io.Serializable {
 			}
 			_calculateZbar(di, docLen);
 		}
-//		params();
-		Arrays.fill(eta, 3);
+		params();
+//		Arrays.fill(eta, 3);
 
 		for(int iter=0; iter<numIterations; iter++) {
 			gibbsSampling(r, sampleIter);
@@ -154,7 +184,10 @@ public class PrimeRtm implements java.io.Serializable {
 
 	private void _calculateZbar(int di, int docLen) {
 		for(int ti=0; ti<numOfTopics; ti++) {
-			zbar[di][ti] = (docTopicCounts[di][ti]+alpha) / ((double)docLen + alpha);
+			zbar[di][ti] = (docTopicCounts[di][ti]+alpha) / ((double)docLen + alpha * numOfTopics);
+			if(zbar[di][ti] > 1) {
+				System.err.println("zbar > 1, " + di + ", " + ti);
+			}
 		}
 	}
 	
@@ -198,9 +231,75 @@ public class PrimeRtm implements java.io.Serializable {
 	 * @return Less than 0 means this pair does not exist.
 	 */
 	public double getPairedSim(int v1, int v2) {
-		if (links.get(v1) != null)
+		if (!links.get(v1).isEmpty())
 			return links.get(v1).getSim(v2);
-		return -1;
+		return 0;
+	}
+	
+	/**
+	 * This sampling method is different in the sense each same term 
+	 * would be assigned to the same topic, that's why we need tf-idf
+	 * here. 
+	 */
+	public void gibbsSampling2(Randoms r, int sampleIter) {
+		numOfTerms = documents.getAlphabet().size();
+		int numDoc = documents.size();
+		topics = new int[numDoc][];
+		docTopicCounts = new int[numDoc][numOfTopics];
+		termTopicCounts = new int[numOfTerms][numOfTopics];
+		topicTokenCounts = new int[numOfTopics];
+		
+		for(int di=0; di<numDoc; di++) {
+			topics[di] = new int[this.tf[di].length];
+		}
+		
+		int oldTopic, newTopic, term;
+		double[] topicWeights = new double[this.numOfTopics];
+		double tw;
+		double topicWeightsSum;
+		int docLen;
+		double[] link_probs = new double[numOfTopics];
+		for(int ii=0; ii<sampleIter; ii++) {
+			for(int di=0; di<documents.size(); di++) {
+				FeatureSequence fs = (FeatureSequence)documents.get(di).getData();
+				docLen = fs.getLength();
+				
+				
+				/* Calculate link probability for this document */
+				if( ii > 0)
+					_calculateLinkProbs(di, link_probs);
+				for(int si=0; si<this.termIndex[di].length; si++) {
+					term = termIndex[di][si];
+					int count = this.tf[di][si];
+					oldTopic = topics[di][si];
+					if(ii>0) {
+						docTopicCounts[di][oldTopic] -= count;
+						termTopicCounts[term][oldTopic] -= count;
+						topicTokenCounts[oldTopic] -= count;
+					}
+					Arrays.fill(topicWeights, 0);
+					topicWeightsSum = 0;
+					
+					for(int ti=0; ti<this.numOfTopics; ti++) {
+						if(ii > 0) {
+							tw = link_probs[ti] * (docTopicCounts[di][ti] + alpha) * (termTopicCounts[term][ti] + beta) 
+								/ (topicTokenCounts[ti] + tBeta);
+						} else {
+							tw = 1.0;
+						}
+						topicWeightsSum += tw;
+						topicWeights[ti] = tw;
+					}
+					newTopic = r.nextDiscrete(topicWeights, topicWeightsSum);
+					topics[di][si] = newTopic;
+					docTopicCounts[di][newTopic] += count;
+					termTopicCounts[term][newTopic] += count;
+					topicTokenCounts[newTopic] += count;
+				}
+				/* Update zbar values */
+				_calculateZbar(di, docLen);
+			}
+		}
 	}
 
 	public void gibbsSampling(Randoms r, int sampleIter) {
@@ -250,6 +349,8 @@ public class PrimeRtm implements java.io.Serializable {
 
 	public void initFromFile(String trainMalletFile, String linkFile) throws IOException {
 		documents = InstanceList.load(new File(trainMalletFile));
+		
+		initTfidf();
 //		documents = new LectureMalletImporter().readCsvFile("dataset/vlc_train.complete.txt");
 //		InstanceList testDocuments = InstanceList.load(new File(testMalletFile));
 		initIdHash();
@@ -293,6 +394,11 @@ public class PrimeRtm implements java.io.Serializable {
 	 * Calculate the eta value.
 	 */
 	public void params() {
+		for(int di=0; di<documents.size(); di++) {
+			FeatureSequence fs = (FeatureSequence) documents.get(di).getData();
+			int docLen = fs.getLength();
+			_calculateZbar(di, docLen);
+		}
 		_calculateXValue();
 		double[] p = new double[this.numOfTopics];
 		Arrays.fill(p, 0);
@@ -322,9 +428,9 @@ public class PrimeRtm implements java.io.Serializable {
 			}
 		}
 
-		WordProb[] wp = new WordProb[numTerms];
+		WordProb[] wp = new WordProb[numOfTerms];
 		for (int ti = 0; ti < numOfTopics; ti++) {
-			for (int wi = 0; wi < numTerms; wi++)
+			for (int wi = 0; wi < numOfTerms; wi++)
 				wp[wi] = new WordProb (wi, ((double)termTopicCounts[wi][ti]) / topicTokenCounts[ti]);
 			Arrays.sort (wp);
 			if (useNewLines) {
@@ -384,10 +490,10 @@ public class PrimeRtm implements java.io.Serializable {
 			}
 			
 			this.addPair(doc1, doc2, sim);
-//			this.addPair(doc2, doc1, sim);
+			this.addPair(doc2, doc1, sim);
 		}
 		reader.close();
-		System.out.println("Num of links: " + numOfLinks);
+//		System.out.println("Num of links: " + numOfLinks);
 	}
 	
 	/**
@@ -405,6 +511,7 @@ public class PrimeRtm implements java.io.Serializable {
 	public static void main(String[] args) throws IOException {
 		int numOfTopic = 8;
 		int numIter = 30;
+		int sampleIter = 100;
 		double alpha = 0.1;
 		double beta = 0.1;
 		
@@ -413,7 +520,7 @@ public class PrimeRtm implements java.io.Serializable {
 		String simFile = "dataset/cora/links.txt";
 		PrimeRtm rtm = new PrimeRtm(numOfTopic, alpha*numOfTopic, beta);
 		rtm.initFromFile(malletFile, simFile);
-		rtm.estimate(numIter, new Randoms());
+		rtm.estimate(numIter, new Randoms(), sampleIter);
 		rtm.printTopWords(10, false);
 	}
 }

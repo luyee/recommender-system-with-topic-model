@@ -1,5 +1,3 @@
-/** This class tries to convert some unicode characters that cannot be correctly 
-  * displayed in unix into ascii letters */
 package rs.util;
 
 import java.text.Normalizer;
@@ -9,6 +7,11 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.MalformedInputException;
+
+/** 
+ * This class tries to convert some unicode characters that cannot be correctly 
+ * displayed in unix into ascii letters 
+ */
 
 public class TextNormalizer {
 	public static final int BSIZE = 1024;
@@ -64,10 +67,8 @@ public class TextNormalizer {
 		writer.close();
 		reader.close();
 	}
-	
 
-	
 	public static void main(String[] args) throws IOException {
-		normalize2("dataset/vlc_lectures_train2.txt", "dataset/vlc_lectures_train3.txt");
+		normalize2("dataset/vlc/vlc_train.title.en.f2.txt", "dataset/vlc/vlc_train.title.en.f2.txt.2");
 	}
 }

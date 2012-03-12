@@ -38,7 +38,7 @@ public class TfidfFilter {
 		}
 	}
 	
-	public final int FILTERTHRESHOLD = 5000;
+	public final int FILTERTHRESHOLD = 2000;
 	
 	public int[][] termIndex;		// indexed by <document, term>, this indicates which terms appear in each doc
 	public int[] tf;				// indexed by <document, term>, indicating frequency of each term
@@ -188,8 +188,8 @@ public class TfidfFilter {
 	
 	public static void main(String[] args) throws IOException {
 //		String malletFile = "dataset/vlc_lectures.all.en.f8.filtered.mallet";
-		String malletFile = "dataset/vlc_lectures.all.en.f8.mallet";
-		String targetFile = "dataset/vlc_lectures.all.5000term.txt";
+		String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
+		String targetFile = "dataset/vlc_lectures.all.2000term.txt";
 		InstanceList documents = InstanceList.load(new File(malletFile));
 		TfidfFilter filter = new TfidfFilter(documents);
 		filter.filterTerms(targetFile);

@@ -15,11 +15,54 @@ import cc.mallet.types.InstanceList;
 
 public abstract class Task1Solution {
 
-	public final static int LIST_SIZE = 30;
+	class VideoRank implements Comparable {
+		double sim;
+		String id;
+		public VideoRank (double sim, String id) { this.sim = sim; this.id = id; }
+		/**
+		 * Sort in reverse order
+		 * @param o2
+		 * @return
+		 */
+		public final int compareTo (Object o2) {
+			if (sim > ((VideoRank)o2).sim)
+				return -1;
+			else if (sim == ((VideoRank)o2).sim)
+				return 0;
+			else return 1;
+		}
+	}
+	
+	/**
+	 * Different from the above class that we are more interested in the 
+	 * indices here than doc id.
+	 * @author Haibin
+	 *
+	 */
+	class VideoRankIndices implements Comparable {
+		double sim;
+		int index;
+		public VideoRankIndices (double sim, int index) { this.sim = sim; this.index = index; }
+		/**
+		 * Sort in reverse order
+		 * @param o2
+		 * @return
+		 */
+		public final int compareTo (Object o2) {
+			if (sim > ((VideoRankIndices)o2).sim)
+				return -1;
+			else if (sim == ((VideoRankIndices)o2).sim)
+				return 0;
+			else return 1;
+		}
+	}
+	
+	
+	public final static int LIST_SIZE = 20;
 	public InstanceList documents;
-//	public static final int testIndexStart = 5236;
-	public static final int testIndexStart = 5221;
-
+	public static final int testIndexStart = 5236;
+//	public static final int testIndexStart = 5221;
+//	public static final int testIndexStart = 5489; // for dataset with title only
 
 	public TObjectIntHashMap<String> idHash;
 	
@@ -54,6 +97,74 @@ public abstract class Task1Solution {
 	}
 	
 	/**
+	 * This method will calculates the top ranked videos' doc indices, so 
+	 * that we can get a list of candidates, and rank them using different methods.
+	 * @param predSimm
+	 * @return
+	 */
+	public int[] topRankedVideoIndices(double[]predSim, int rank) {
+		int[] indicesList = new int[rank];
+		VideoRankIndices[] videos = new VideoRankIndices[predSim.length];
+		for(int i=0; i<predSim.length; i++) {
+			videos[i] = new VideoRankIndices(predSim[i], i);
+		}
+		Arrays.sort(videos);
+		for(int i=0; i<rank; i++) {
+			indicesList[i] = videos[i].index;
+		}
+		return indicesList;
+	}
+	
+	/**
+	 * Sort the filtered list of videos using new similarities.
+	 * @param qdocId
+	 * @param predSim
+	 * @param idxList The indices of the filtered videos using a different measure. E.g.,
+	 * 				  we first use LDA to create this list, then use tfidf to rank it. 
+	 * @return
+	 */
+	public String sortFilteredRecommendList(int qdocId, double[] predSim, int[] idxList) {
+		String testVideoId = (String)documents.get(qdocId).getName();
+		
+		VideoRank[] videos = new VideoRank[idxList.length];
+		for(int i=0; i<Math.min(idxList.length, predSim.length); i++) {
+			int idx = idxList[i];
+			videos[i] = new VideoRank(predSim[idx], (String)documents.get(this.testIndexStart+idx).getName());
+		}
+		Arrays.sort(videos);
+		StringBuilder line = new StringBuilder();
+		
+		line.append(testVideoId);
+		line.append(":");
+		for(int i=0; i<LIST_SIZE-1; i++) {
+			line.append(videos[i].id);
+			line.append(",");
+		}
+		line.append(videos[LIST_SIZE-1].id);
+		return line.toString();
+	}
+	
+	/**
+	 * Same function like sortRecommendList, just use a different way. 
+	 * @param qdocId
+	 * @param predSim
+	 * @return
+	 */
+	public String sortRecommendList2(int qdocId, double[] predSim) {
+		String testVideoId = (String)documents.get(qdocId).getName();
+		int[] topDocs = topRankedVideoIndices(predSim, LIST_SIZE);
+		StringBuilder line = new StringBuilder();
+		line.append(testVideoId);
+		line.append(":");
+		for(int i=0; i<LIST_SIZE-1; i++) {
+			line.append(documents.get(topDocs[i] + testIndexStart).getName());
+			line.append(",");
+		}
+		line.append(documents.get(topDocs[LIST_SIZE-1] + testIndexStart).getName());
+		return line.toString();
+	}
+	
+	/**
 	 * Recommendation list for one test video
 	 * @param qdocId
 	 * @param predSim
@@ -61,39 +172,13 @@ public abstract class Task1Solution {
 	 */
 	public String sortRecommendList(int qdocId, double[] predSim) {
 		String testVideoId = (String)documents.get(qdocId).getName();
-		class VideoRank implements Comparable {
-			double sim;
-			String id;
-			public VideoRank (double sim, String id) { this.sim = sim; this.id = id; }
-			/**
-			 * Sort in reverse order
-			 * @param o2
-			 * @return
-			 */
-			public final int compareTo (Object o2) {
-				if (sim > ((VideoRank)o2).sim)
-					return -1;
-				else if (sim == ((VideoRank)o2).sim)
-					return 0;
-				else return 1;
-			}
-		}
+		
 		VideoRank[] videos = new VideoRank[predSim.length];
-		for(int i=0; i<Math.min(testIndexStart, predSim.length); i++) {
+		for(int i=0; i<Math.min(documents.size()-testIndexStart, predSim.length); i++) {
 			videos[i] = new VideoRank(predSim[i], (String)documents.get(this.testIndexStart+i).getName());
 		}
 		Arrays.sort(videos);
 		StringBuilder line = new StringBuilder();
-		
-//		for(int i=0; i<LIST_SIZE; i++) {
-//			line.append(testVideoId);
-//			line.append(" ");
-//			line.append(videos[i].id);
-//			line.append(" ");
-//			line.append(videos[i].sim);
-//			line.append("\n");
-//		}
-//		return line.toString();
 		
 		line.append(testVideoId);
 		line.append(":");

@@ -1,7 +1,3 @@
-/* After extracting needed fields from training lectures, we also 
- * need to import it into mallet as instances. 
- * We'll use CvsIterator with each line an instance in the file. 
- */
 package rs.util;
 
 import java.util.ArrayList;
@@ -10,10 +6,18 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 
+import rs.util.vlc.Task1Solution;
+
 import cc.mallet.pipe.*;
 import cc.mallet.pipe.Pipe;
 import cc.mallet.pipe.iterator.*;
 import cc.mallet.types.*;
+
+/** 
+ * After extracting needed fields from training lectures, we also 
+ * need to import it into mallet as instances. 
+ * We'll use CvsIterator with each line an instance in the file. 
+ */
 
 public class LectureMalletImporter {
 	Pipe pipe;
@@ -49,26 +53,46 @@ public class LectureMalletImporter {
 		return instances;
 	}
 	
+	public static void splitInstanceList(InstanceList ll, int testStartIndex, 
+						String trainMalletFile, String testMalletFile) 
+	{
+		InstanceList trainMallet = ll.subList(0, testStartIndex);
+		InstanceList testMallet = ll.subList(testStartIndex, ll.size());
+		trainMallet.save(new File(trainMalletFile));
+		testMallet.save(new File(testMalletFile));
+	}
+	
 	public static void main(String[] args) throws IOException {
 //		String input = "dataset/lectures_test.csv";
 //		String output = "dataset/vlc_lectures.all.en.f8.filtered.txt";
-//		String output = "dataset/vlc_lectures.all.5000term.txt";
-		String output = "dataset/cora/cora.txt";
-//		String malletOutput = "dataset/vlc_lectures.all.5000term.mallet";
-		String malletOutput = "dataset/cora/cora.mallet";
+//		String output = "dataset/vlc/vlc_lectures.all.en.f8.txt";
+//		String output = "dataset/vlc_lectures.all.2000term.txt";
+		String output = "dataset/vlc/vlc_lectures.all.title.en.f2.txt";
+//		String output = "dataset/cora/cora.txt";
+		String malletOutput = "dataset/vlc/vlc_lectures.all.title.en.f2.mallet";
+//		String malletOutput = "dataset/cora/cora.mallet";
+//		String malletOutput = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
 //		ExtractText extractor = new ExtractText(input, output, 0,2,7,8);
 //		extractor.doExtraction();
 		
 		LectureMalletImporter importer = new LectureMalletImporter();
 		InstanceList instances = importer.readCsvFile(output);
 		instances.save(new File(malletOutput));
-		
+//		
 		InstanceList instances2 = InstanceList.load(new File(malletOutput));
-		System.out.println(instances2.get(1000).getName());
+		System.out.println(instances2.get(Task1Solution.testIndexStart).getName());
+		String trainMalletFile = "dataset/vlc/vlc_train.title.f2.mallet";
+		String testMalletFile = "dataset/vlc/vlc_test.title.f2.mallet";
+		LectureMalletImporter.splitInstanceList(instances2, Task1Solution.testIndexStart, 
+				trainMalletFile, testMalletFile);
+		
+		
 //		System.out.println(instances2.get(5221).getName());
 //		System.out.println(instances2.get(5236).getName());
 //		saveCorpus(instances2);
 	}
+	
+	
 	
 	public static void saveCorpus(InstanceList instances) throws IOException {
 		FileChannel fc = new FileOutputStream("dataset/vlc_corpus.txt").getChannel();
