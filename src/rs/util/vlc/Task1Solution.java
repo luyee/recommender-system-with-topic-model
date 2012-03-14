@@ -58,7 +58,7 @@ public abstract class Task1Solution {
 	}
 	
 	
-	public final static int LIST_SIZE = 20;
+	public final static int LIST_SIZE = 30;
 	public InstanceList documents;
 	public static final int testIndexStart = 5236;
 //	public static final int testIndexStart = 5221;
