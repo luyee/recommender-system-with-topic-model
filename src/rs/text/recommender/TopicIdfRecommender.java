@@ -8,6 +8,8 @@ package rs.text.recommender;
 import java.io.IOException;
 import java.util.Arrays;
 
+import rs.text.ir.MalletTfidf;
+
 
 import cc.mallet.types.*;
 

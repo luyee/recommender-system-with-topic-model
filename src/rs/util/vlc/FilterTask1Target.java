@@ -1,15 +1,15 @@
-package rs.util.vlc;
-
-import java.io.*;
-
-import org.tunedit.core.exception.AlgorithmErrorException;
-
 /**
  * This class will filter out pairs from task 1 target with the same 
  * threshold, we do it with number threshold, instead of percentage.
  * @author Haibin
  *
  */
+package rs.util.vlc;
+
+import java.io.*;
+
+import org.tunedit.core.exception.AlgorithmErrorException;
+
 public class FilterTask1Target {
 	public static void filterTarget(int threshold, String srcFile, String dstFile) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(srcFile));

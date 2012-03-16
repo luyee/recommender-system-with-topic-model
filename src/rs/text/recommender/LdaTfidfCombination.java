@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import rs.text.model.RelationalTopicModel;
+import rs.text.ir.MalletTfidf;
+import rs.text.topics.RelationalTopicModel;
 import rs.util.vlc.Task1Solution;
 
 import cc.mallet.topics.ParallelTopicModel;
@@ -53,12 +54,16 @@ public class LdaTfidfCombination {
 		}
 		
 		public static void main(String[] args) throws IOException {
-			String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
+//			String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
 //			String queryFile = "dataset/task1_query.en.f8.txt";
 //			String targetFile = "dataset/task1_target.en.f8.txt";
-			String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
-			String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";
+//			String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
+//			String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";
 			String solutionFile = "dataset/task1_solution.en.f8.combine.txt";
+			String malletFile = "dataset/vlc/folds/all.0.4189.mallet";
+
+			String queryFile = "dataset/vlc/folds/query.0.csv";
+			String targetFile = "dataset/vlc/folds/target.0.csv";
 			String simFile = "dataset/vlc/sim5p.csv";
 			
 			InstanceList documents = InstanceList.load(new File(malletFile));

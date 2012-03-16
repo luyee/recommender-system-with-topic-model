@@ -11,7 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import rs.text.model.RelationalTopicModel;
+import rs.text.ir.MalletTfidf;
+import rs.text.topics.RelationalTopicModel;
 import rs.util.vlc.Task1Solution;
 
 import cc.mallet.topics.ParallelTopicModel;

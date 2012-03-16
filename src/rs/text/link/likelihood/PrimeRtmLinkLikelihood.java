@@ -6,7 +6,7 @@ import java.util.*;
 
 import cc.mallet.types.InstanceList;
 import cc.mallet.util.Randoms;
-import rs.text.model.*;
+import rs.text.topics.*;
 
 public class PrimeRtmLinkLikelihood {
 	/**

@@ -2,7 +2,7 @@ package rs.text.recommender;
 
 import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
-import rs.text.model.PrimeRtm;
+import rs.text.topics.PrimeRtm;
 import rs.util.vlc.Task1Solution;
 
 import java.io.*;

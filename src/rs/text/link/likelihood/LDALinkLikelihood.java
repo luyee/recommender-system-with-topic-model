@@ -14,7 +14,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.io.*;
 import java.util.*;
 
-import rs.text.model.*;
+import rs.text.topics.*;
 import rs.types.PairedInfo;
 
 public class LDALinkLikelihood {

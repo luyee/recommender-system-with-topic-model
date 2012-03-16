@@ -1,11 +1,8 @@
 package rs.types;
 
-import java.util.*;
-import java.io.*;
-import gnu.trove.list.array.*;
 import gnu.trove.map.hash.*;
 
-public class PairedInfo implements Serializable{
+public class PairedInfo {
 	TIntDoubleHashMap pairedVideos;
 	int id;			// This is just the index.
 	

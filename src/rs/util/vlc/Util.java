@@ -43,6 +43,24 @@ public class Util {
 	}
 	
 	/**
+	 * Rescale a vector by dividing every factor with the sum of the vector. 
+	 * @param v
+	 * @return
+	 */
+	public static double[] reWeightVector(double[] v) {
+		double sum = 0;
+		for (int i=0; i<v.length; i++) {
+			sum += v[i];
+		}
+		if(sum == 0) return v;
+		double[] result = v.clone();
+		for(int i=0; i<v.length; i++) {
+			result[i] = v[i] / sum;
+		}
+		return result;
+	}
+	
+	/**
 	 * eta's length should be one longer than v1 and v2.
 	 * @param v1
 	 * @param v2

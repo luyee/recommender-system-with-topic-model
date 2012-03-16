@@ -1,3 +1,6 @@
+/**
+ * A helper class to analyze pair similarity and distribution.
+ */
 package rs.text;
 
 import gnu.trove.iterator.TObjectIntIterator;
@@ -9,8 +12,8 @@ import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.InstanceList;
 import cc.mallet.util.Randoms;
 
-import rs.text.model.*;
-import rs.text.recommender.MalletTfidf;
+import rs.text.ir.MalletTfidf;
+import rs.text.topics.*;
 import rs.util.vlc.Util;
 
 public class TopicPairDistribution {

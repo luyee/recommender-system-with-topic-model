@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import rs.text.model.LDAModel;
+import rs.text.topics.LDAModel;
 import rs.util.vlc.Task1Solution;
 
 import cc.mallet.topics.*;
@@ -14,7 +14,6 @@ import cc.mallet.types.LabelSequence;
 import cc.mallet.util.Randoms;
 
 public class LDARecommender extends TopicRecommender{
-
 	LDAModel lda;
 	LDARecommender(LDAModel p) {
 		super(p.getInstanceList());
@@ -48,14 +47,19 @@ public class LDARecommender extends TopicRecommender{
 		double beta = 0.0048;
 		LDAModel lda = new LDAModel(numOfTopics, alpha*numOfTopics, beta);
 		
-		String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
+//		String malletFile = "dataset/vlc/vlc_lectures.all.en.f8.mallet";
 //		String malletFile = "dataset/vlc/vlc_lectures.all.title.en.f2.mallet";
 		String simFile = "dataset/vlc/sim_0p_10n.csv";
 		String solutionFile = "dataset/vlc/task1_solution.en.f8.lm.txt";
 //		String queryFile = "dataset/task1_query.en.f8.txt";
 //		String targetFile = "dataset/task1_target.en.f8.txt";
-		String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
-		String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";	
+//		String queryFile = "dataset/vlc/task1_query.en.f8.n5.txt";
+//		String targetFile = "dataset/vlc/task1_target.en.f8.n5.txt";
+
+		String malletFile = "dataset/vlc/folds/all.0.4189.mallet";
+
+		String queryFile = "dataset/vlc/folds/query.0.csv";
+		String targetFile = "dataset/vlc/folds/target.0.csv";
 		
 //		String queryFile = "dataset/vlc/task1_query.en.title.f2.txt";
 //		String targetFile = "dataset/vlc/task1_target.en.title.f2.txt";
@@ -81,4 +85,3 @@ public class LDARecommender extends TopicRecommender{
 		}
 	}
 }
-

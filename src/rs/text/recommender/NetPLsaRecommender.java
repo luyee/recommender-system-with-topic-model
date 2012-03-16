@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 import cc.mallet.types.InstanceList;
 
-import rs.text.model.NetPLSA;
-import rs.text.model.RelationalTopicModel;
+import rs.text.topics.NetPLSA;
+import rs.text.topics.RelationalTopicModel;
 import rs.util.vlc.Task1Solution;
 
 public class NetPLsaRecommender {

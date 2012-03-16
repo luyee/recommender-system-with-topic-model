@@ -14,25 +14,6 @@ import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 
 public abstract class Task1Solution {
-
-	class VideoRank implements Comparable {
-		double sim;
-		String id;
-		public VideoRank (double sim, String id) { this.sim = sim; this.id = id; }
-		/**
-		 * Sort in reverse order
-		 * @param o2
-		 * @return
-		 */
-		public final int compareTo (Object o2) {
-			if (sim > ((VideoRank)o2).sim)
-				return -1;
-			else if (sim == ((VideoRank)o2).sim)
-				return 0;
-			else return 1;
-		}
-	}
-	
 	/**
 	 * Different from the above class that we are more interested in the 
 	 * indices here than doc id.
@@ -57,12 +38,10 @@ public abstract class Task1Solution {
 		}
 	}
 	
-	
 	public final static int LIST_SIZE = 30;
 	public InstanceList documents;
-	public static final int testIndexStart = 5236;
-//	public static final int testIndexStart = 5221;
-//	public static final int testIndexStart = 5489; // for dataset with title only
+//	public static final int testIndexStart = 5236;
+	public static final int testIndexStart = 4189;
 
 	public TObjectIntHashMap<String> idHash;
 	
