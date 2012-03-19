@@ -61,7 +61,7 @@ public class LdaTfidfCombination extends Model {
 //			mt.retrieveTask1Solution(queryFile, solutionFile);
 		
 		ParallelLdaRecommender ldaModel = new ParallelLdaRecommender(documents);
-		int numIterations = 1000;
+		int numIterations = 200;
 		double alpha = 0.0016;
 		int numTopics = 160;
 		double beta = 0.0048;
