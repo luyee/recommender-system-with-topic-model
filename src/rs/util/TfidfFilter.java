@@ -10,9 +10,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
-import rs.text.ir.MalletTfidf;
-import rs.text.topics.RelationalTopicModel;
-import rs.util.vlc.Task1Solution;
+import rs.model.ir.MalletTfidf;
+import rs.model.topics.RelationalTopicModel;
+import rs.util.vlc.solution.Task1Solution;
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.InstanceList;

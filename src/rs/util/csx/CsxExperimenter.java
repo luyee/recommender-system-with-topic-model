@@ -1,6 +1,6 @@
 package rs.util.csx;
 
-import rs.text.*;
+import rs.model.*;
 
 public class CsxExperimenter {
 	public static void ldaExperimenter() {

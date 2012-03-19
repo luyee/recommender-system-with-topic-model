@@ -13,9 +13,9 @@ import java.util.*;
 
 import cc.mallet.types.InstanceList;
 
-import rs.text.topics.PairData;
+import rs.types.PairData;
 import rs.types.PairedInfo;
-import rs.util.vlc.VideoRank;
+import rs.types.VideoRank;
 
 public class GenerateLinkFolds {
 	

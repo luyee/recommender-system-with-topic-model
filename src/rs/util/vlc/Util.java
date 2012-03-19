@@ -42,6 +42,15 @@ public class Util {
 		return Math.sqrt(sum);
 	}
 	
+	public static double normalizeVector(int[] v) {
+		double sum = 0;
+		for(int i=0; i<v.length; i++) {
+			sum += v[i] * v[i];
+		}
+		return Math.sqrt(sum);
+	}
+	
+	
 	/**
 	 * Rescale a vector by dividing every factor with the sum of the vector. 
 	 * @param v

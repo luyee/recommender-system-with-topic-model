@@ -6,7 +6,7 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 
-import rs.util.vlc.Task1Solution;
+import rs.util.vlc.solution.Task1Solution;
 
 import cc.mallet.pipe.*;
 import cc.mallet.pipe.Pipe;

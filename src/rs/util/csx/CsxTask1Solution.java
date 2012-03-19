@@ -3,6 +3,8 @@ package rs.util.csx;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import cc.mallet.types.*;
 import rs.util.vlc.*;
+import rs.util.vlc.solution.Task1Evaluation;
+
 import java.io.*;
 import java.util.*;
 
