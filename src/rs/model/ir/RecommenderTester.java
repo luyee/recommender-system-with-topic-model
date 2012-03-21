@@ -121,10 +121,10 @@ public class RecommenderTester {
 		
 		RecommenderTester tester = new RecommenderTester(malletFile, trainMalletFile, 
 				testMalletFile, linkFile, queryFile, targetFile, solutionFile);
-//		tester.tfidfTest();
-//		tester.separateTfidfTest();
-//		tester.mleTest();
-		tester.separateMleTest();
+		tester.tfidfTest();
+		tester.separateTfidfTest();
+		tester.mleTest();
+//		tester.separateMleTest();
 //		tester.clusterMleTest();
 	}
 }

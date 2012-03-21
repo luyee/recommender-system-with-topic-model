@@ -80,13 +80,9 @@ public abstract class TopicRecommender extends Model {
 	 */
 	public double queryTopicVSM (int qdocId, int targetDocId) {
 		double predSim = 0;
-		
 		double[] v1 = theta[qdocId];
 		double[] v2 = theta[targetDocId];
 		predSim = rs.util.vlc.Util.cosineProduct(v1, v2);
-		
 		return predSim;
 	}
-
-	
 }
