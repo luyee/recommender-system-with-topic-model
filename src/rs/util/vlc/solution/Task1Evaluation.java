@@ -12,11 +12,7 @@ import org.tunedit.core.exception.*;
 import gnu.trove.TIntIntHashMap;
 
 public class Task1Evaluation extends EvaluationProcedure {
-<<<<<<< HEAD
 	public static final int u_most = 20;
-=======
-	public static final int u_most = 500;
->>>>>>> 95e6ed93f43c1ca8b6685cbba3a41c3b4be98076
 	public int z_max;
 	public Task1Evaluation(int z) {
 		this.z_max = z;

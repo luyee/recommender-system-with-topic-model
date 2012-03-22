@@ -245,7 +245,7 @@ public class RecommenderTester {
 		RecommenderTester tester = new RecommenderTester(malletFile, trainMalletFile, 
 				testMalletFile, linkFile, queryFile, targetFile, solutionFile);
 		tester.tfidfTest();
-<<<<<<< HEAD
+
 //		tester.tfidfMleCombineTest();
 //		tester.separateTfidfTest();
 //		tester.mleTest();
@@ -262,11 +262,6 @@ public class RecommenderTester {
 //		}
 //		tester.netPlsaTest();
 	}
-=======
-		tester.separateTfidfTest();
-		tester.mleTest();
-//		tester.separateMleTest();
-//		tester.clusterMleTest();
->>>>>>> 95e6ed93f43c1ca8b6685cbba3a41c3b4be98076
+
 	}
 }
