@@ -13,8 +13,6 @@ import rs.util.vlc.solution.Task1Solution;
 
 public class NetPLsaRecommender extends Model {
 	public InstanceList documents;
-	public Task1Solution solver;
-	public static final int testIndexStart = RelationalTopicModel.testIndexStart;
 	
 	public NetPLSA model;
 	

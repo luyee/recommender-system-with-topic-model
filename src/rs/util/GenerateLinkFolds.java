@@ -18,6 +18,7 @@ import rs.types.PairedInfo;
 import rs.types.VideoRank;
 
 public class GenerateLinkFolds {
+	public final static int FREQ = 2;
 	
 	/**
 	 * This method will randomly divide training data set into specified folds. 
@@ -136,6 +137,7 @@ public class GenerateLinkFolds {
 				continue;
 			
 			double simVal = pairs.getPairedSim(v1, v2);
+			if(simVal < FREQ) continue;
 			String docId1 = (String) documents.get(v1).getName();
 			String docId2 = (String) documents.get(v2).getName();
 			writer.write(docId1 + "," + docId2 + "," + simVal);
@@ -180,8 +182,6 @@ public class GenerateLinkFolds {
 			if(videoList.isEmpty()) 
 				continue;
 			else {
-				qWriter.write(qIdString);
-				qWriter.newLine();
 				VideoRank[] videos = new VideoRank[videoList.size()];
 				videoList.toArray(videos);
 				Arrays.sort(videos);
@@ -195,7 +195,11 @@ public class GenerateLinkFolds {
 				}
 				sb.append(videos[videos.length-1].id + "|");
 				int v = (int)videos[videos.length-1].sim;
+				if (v < FREQ) continue;
 				sb.append(v);
+				
+				qWriter.write(qIdString);
+				qWriter.newLine();
 				tWriter.write(sb.toString());
 				tWriter.newLine();
 			}				

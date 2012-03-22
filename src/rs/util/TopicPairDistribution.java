@@ -1,7 +1,7 @@
 /**
  * A helper class to analyze pair similarity and distribution.
  */
-package rs.model;
+package rs.util;
 
 import gnu.trove.iterator.TObjectIntIterator;
 

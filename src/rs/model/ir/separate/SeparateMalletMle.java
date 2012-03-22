@@ -47,6 +47,8 @@ public class SeparateMalletMle extends SeparateModel {
 			if (pos >= 0) {
 				weight += lambda * qTermProb[pos];
 			}
+			if(weight == 0) continue;
+			
 			sim *= Math.pow(weight, freq);
 			
 			/*********************/

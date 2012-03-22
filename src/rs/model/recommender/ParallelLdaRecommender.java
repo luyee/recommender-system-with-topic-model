@@ -12,7 +12,7 @@ import cc.mallet.util.Randoms;
 public class ParallelLdaRecommender extends TopicRecommender{
 	ParallelTopicModel lda;
 	
-	ParallelLdaRecommender(InstanceList documents) {
+	public ParallelLdaRecommender(InstanceList documents) {
 		super(documents);
 	}
 

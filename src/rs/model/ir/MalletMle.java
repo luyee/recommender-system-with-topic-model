@@ -213,7 +213,31 @@ public class MalletMle extends Model {
 		return getMleSim(qdocId, targetDocId);
 	}
 	
-	private double getTwidfSim(int qdocId, int targetDocId) {
+	public double getTermProbVSM(int qdocId, int targetDocId) {
+		double sim = 0;
+		double[] qTermProb = termProb[qdocId];
+		double[] tTermProb = termProb[targetDocId];
+		
+		int[] qTerm = tfidf.termIndex[qdocId];
+		int[] tTerm = tfidf.termIndex[targetDocId];
+		
+		int qi = 0;
+		int ti = 0;
+		
+		for (ti=0; ti<tTerm.length; ti++) {
+			int term = tTerm[ti];
+			double weight = 0;
+			
+			int pos = Arrays.binarySearch(qTerm, term);
+			if (pos >= 0) {
+				sim += tTermProb[ti] * qTermProb[pos];
+			}
+		}
+		sim /= Util.normalizeVector(qTermProb) * Util.normalizeVector(tTermProb);
+		return sim;
+	}
+	
+	public double getTwidfSim(int qdocId, int targetDocId) {
 		// TODO Auto-generated method stub
 		double[] qTwidf = twidf[qdocId];
 		double[] tTwidf = twidf[targetDocId];
@@ -254,7 +278,4 @@ public class MalletMle extends Model {
 		return this.documents;
 	}
 	
-	public static void main(String[] args) {
-		
-	}
 }

@@ -24,6 +24,7 @@ import cc.mallet.types.InstanceList;
 public abstract class BasicTask1Solution {
 	
 	public final static int LIST_SIZE = 20;
+//	public final static int RANK_SIZE = 5;
 
 	public InstanceList documents;
 	public TObjectIntHashMap<String> idHash;
@@ -240,6 +241,7 @@ public abstract class BasicTask1Solution {
 		};
 		
 		Double[] result = a.run(userLabelsName, targetLabelsName, loader);
+//		Double[] result = a.runRKL(userLabelsName, targetLabelsName, loader);
 		return result[0];
 	}
 }

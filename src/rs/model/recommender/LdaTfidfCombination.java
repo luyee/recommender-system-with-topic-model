@@ -26,7 +26,7 @@ public class LdaTfidfCombination extends Model {
 	public double getSim(int qdocId, int targetDocId) {
 		// TODO Auto-generated method stub
 		double tfidfSim = tfidfModel.getSim(qdocId, targetDocId);
-		double ldaSim = ldaModel.getSim(qdocId, targetDocId);
+		double ldaSim = ldaModel.queryTopicVSM(qdocId, targetDocId);
 		double predSim = lambda * tfidfSim + (1-lambda) * 0.2 * ldaSim;
 //		double predSim = lambda * ldaSim;
 		return predSim;		

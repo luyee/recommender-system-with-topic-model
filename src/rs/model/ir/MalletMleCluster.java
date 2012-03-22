@@ -199,6 +199,7 @@ public class MalletMleCluster extends MalletMle{
 			}
 				
 			weight += (1-lambda) * (1-beta) * collTw[term];
+			if(weight == 0) continue;
 			sim *= Math.pow(weight, freq);
 			
 			/*****************/
