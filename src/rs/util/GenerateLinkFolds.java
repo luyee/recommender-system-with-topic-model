@@ -18,7 +18,11 @@ import rs.types.PairedInfo;
 import rs.types.VideoRank;
 
 public class GenerateLinkFolds {
+<<<<<<< HEAD
 	public final static int FREQ = 2;
+=======
+	public final static int FREQ = 3;
+>>>>>>> 95e6ed93f43c1ca8b6685cbba3a41c3b4be98076
 	
 	/**
 	 * This method will randomly divide training data set into specified folds. 
