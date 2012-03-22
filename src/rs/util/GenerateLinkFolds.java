@@ -18,7 +18,6 @@ import rs.types.PairedInfo;
 import rs.types.VideoRank;
 
 public class GenerateLinkFolds {
-
 	public final static int FREQ = 2;
 	
 	/**

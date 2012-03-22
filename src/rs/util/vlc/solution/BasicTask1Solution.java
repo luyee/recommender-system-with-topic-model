@@ -24,8 +24,7 @@ import cc.mallet.types.InstanceList;
 public abstract class BasicTask1Solution {
 	
 	public final static int LIST_SIZE = 20;
-//	public final static int LIST_SIZE = Task1Evaluation.u_most;
-	public final static int RANK_SIZE = 5;
+//	public final static int RANK_SIZE = 5;
 
 	public InstanceList documents;
 	public TObjectIntHashMap<String> idHash;
@@ -215,7 +214,7 @@ public abstract class BasicTask1Solution {
 	}
 	
 	public static double evaluateResult(String targetFile, String solutionFile) throws Exception {
-		Task1Evaluation a = new Task1Evaluation(RANK_SIZE);		
+		Task1Evaluation a = new Task1Evaluation(LIST_SIZE);		
 		ResourceName userLabelsName = new ResourceName(solutionFile);
 		
 		//put here the path to the file "task1_target_test_leaderboard.txt"
@@ -242,8 +241,6 @@ public abstract class BasicTask1Solution {
 		};
 		
 		Double[] result = a.run(userLabelsName, targetLabelsName, loader);
-//		Double[] result = a.runRKL(userLabelsName, targetLabelsName, loader);
-//		Double[] result = a.run(userLabelsName, targetLabelsName, loader);
 //		Double[] result = a.runRKL(userLabelsName, targetLabelsName, loader);
 		return result[0];
 	}
