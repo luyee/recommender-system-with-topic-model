@@ -143,10 +143,10 @@ public class RecommenderTester {
 		lda.setNumThreads(4);
 		lda.setNumIterations(numIterations);
 		lda.setSymmetricAlpha(false);
-		lda.setTopicDisplay(1000, 5);
+		lda.setTopicDisplay(0, 5);
 		lda.printLogLikelihood = false;
 		lda.estimate();
-		lda.printTopWords(System.out, 10, true);
+//		lda.printTopWords(System.out, 10, true);
 		
 		ParallelLdaRecommender pModel = new ParallelLdaRecommender(documents);
 		pModel.setPtm(lda);
@@ -170,7 +170,7 @@ public class RecommenderTester {
 		lda.addInstances(documents);
 		lda.setNumThreads(4);
 		lda.setNumIterations(numIterations);
-		lda.setTopicDisplay(1000, 5);
+		lda.setTopicDisplay(0, 5);
 		lda.printLogLikelihood = false;
 		lda.estimate();
 		System.out.println("LDA parameter, alphaSum: " + lda.alphaSum + ", beta: " + lda.beta);
