@@ -1,0 +1,1 @@
+Try to incorporate lda, or topic modeling in recommender system
